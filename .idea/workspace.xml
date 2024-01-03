@@ -4,19 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf64897-cd13-4980-9ea3-b5e59b22923f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/farmer_dop.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/MetaMask_Chrome.crx" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/emails.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/main_dop.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/wallets.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/xpath.py" afterDir="false" />
+    <list default="true" id="6bf64897-cd13-4980-9ea3-b5e59b22923f" name="Changes" comment=" 1.0">
+      <change afterPath="$PROJECT_DIR$/success_reg_accounts.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_dop.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_dop.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -76,6 +67,19 @@
       <option name="presentableId" value="Default" />
       <updated>1704188598577</updated>
     </task>
+    <task id="LOCAL-00001" summary=" 1.0">
+      <option name="closed" value="true" />
+      <created>1704265015412</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1704265015412</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value=" 1.0" />
+    <option name="LAST_COMMIT_MESSAGE" value=" 1.0" />
   </component>
 </project>
