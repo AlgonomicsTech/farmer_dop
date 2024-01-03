@@ -20,10 +20,9 @@ from selenium.webdriver.common.keys import Keys
 ref = 'H6jgeh5'
 log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {function}:{line} - {message}")
 
-MNEMONIC = 'fault mouse weird peasant wasp enroll vote black spend sugar dice senior'.split(' ')
 PASSWORD = '11111111'
 PASSWORD2 = 'Qzmp2023'
-EMAIL = 'jobpfrosjc@rambler.ru'
+
 
 
 def choose_random(file_name):
@@ -35,7 +34,7 @@ def choose_random(file_name):
         return ''
 
 
-def save_data(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm='11111111'):
+def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm='11111111'):
 
     file_path = 'success_reg_accounts.txt'
     data_line = f"{secret_key_dop}:{seed_prase_dop}:{password_dop}:{email_address}:{mnemonic_mm}:{password_mm}\n"
@@ -45,8 +44,27 @@ def save_data(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemo
     log.info(f"{email_address} | data save in {file_path}")
 
 
+def save_data_ref_code(email, ref_code, count_referrals=0):
 
-def auto_reg():
+    file_path = 'ref.txt'
+    data_line = f"{email}:{ref_code}:{count_referrals}\n"
+
+    with open(file_path, 'a') as file:
+        file.write(data_line)
+    log.info(f"{email} | data save in {file_path}")
+
+
+def is_account_registered(email_address):
+    with open('success_reg_accounts.txt', 'r') as file:
+        for line in file:
+            if email_address in line.split(':')[3]:
+                return False
+    return True
+
+
+def auto_reg(EMAIL, MNEMONIC):
+
+    MNEMONIC = MNEMONIC.split()
 
     chrome_options = Options()
     chrome_options.add_extension('MetaMask_Chrome.crx')
@@ -165,6 +183,10 @@ def auto_reg():
         time.sleep(time_break*2)
         log.info(f"{EMAIL} | click | I confirm | DOP")
 
+        log.debug('Press Enter to continue...')
+        input()
+
+
         driver.find_element('xpath',
                             '//*[@id="root"]/section[2]/div/div/div[2]/div[3]/button/p').click()  # copy phrase
         driver.implicitly_wait(time_break)
@@ -210,8 +232,9 @@ def auto_reg():
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | done | DOP")
 
-        save_data(secret_key, seed_phrase, PASSWORD2, EMAIL, MNEMONIC)
+        save_data_account(secret_key, ' '.join(seed_phrase), PASSWORD2, EMAIL, ' '.join(MNEMONIC))
         log.success('Created account in DOP successfully!')
+        time.sleep(time_break)
         print()
 
         driver.find_element('xpath',
@@ -258,15 +281,29 @@ def auto_reg():
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | switch network on cepolia | MM")
 
+        # ----------------------------------------------------------------------------------------------------- save ref
+
+        driver.find_element('xpath',
+                            '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[6]/div[2]/div/div/h6/img').click()  # switch network on cepolia
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | click | copy ref code | DOT")
+
+        driver.implicitly_wait(time_break)
+        time.sleep(time_break)
+
+        ref_code = pyperclip.paste()
+        log.info(f'secret key | {ref_code}')
+
+        save_data_ref_code(EMAIL, ref_code)
+
         log.debug('Press Enter to exit...')
         input()
 
         return True
 
     except Exception as e:
-        log.error(f'     | {str(e)}')
+        log.error(f'{EMAIL}| Failed Registered | {str(e)}')
     finally:
         driver.quit()
 
 
-auto_reg()

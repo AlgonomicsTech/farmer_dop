@@ -4,10 +4,17 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf64897-cd13-4980-9ea3-b5e59b22923f" name="Changes" comment=" 1.0">
-      <change afterPath="$PROJECT_DIR$/success_reg_accounts.txt" afterDir="false" />
+    <list default="true" id="6bf64897-cd13-4980-9ea3-b5e59b22923f" name="Changes" comment=" 1.1.1">
+      <change afterPath="$PROJECT_DIR$/accounts_data.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/passed_testnet.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ref.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_dop.py" beforeDir="false" afterPath="$PROJECT_DIR$/main_dop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/emails.txt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_dop.py" beforeDir="false" afterPath="$PROJECT_DIR$/dop.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/success_reg_accounts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/success_reg_accounts.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/wallets.txt" beforeDir="false" afterPath="$PROJECT_DIR$/logo.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,11 +82,20 @@
       <option name="project" value="LOCAL" />
       <updated>1704265015412</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary=" 1.1.1">
+      <option name="closed" value="true" />
+      <created>1704272395734</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1704272395734</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value=" 1.0" />
-    <option name="LAST_COMMIT_MESSAGE" value=" 1.0" />
+    <MESSAGE value=" 1.1.1" />
+    <option name="LAST_COMMIT_MESSAGE" value=" 1.1.1" />
   </component>
 </project>

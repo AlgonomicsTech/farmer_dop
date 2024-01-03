@@ -2,7 +2,7 @@ METAMASK_EXTENSION_PATH = r"C:\Users\romak\PycharmProjects\farmer_dop\MetaMask.c
 METAMASK_DATA_PATH = r'C:\Users\romak\AppData\Roaming\MetaMask'
 
 time_break = 5
-timeout =30
+timeout = 30
 
 url_main_dop = 'https://doptest.dop.org/id='
 
