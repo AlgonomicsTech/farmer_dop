@@ -1,10 +1,12 @@
 import random
+import string
 import time
 import zipfile
 import os
 from datetime import datetime
 
 import pyperclip
+from fake_useragent import UserAgent
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -17,12 +19,9 @@ from loguru import logger as log
 from selenium.webdriver.common.keys import Keys
 
 
-ref = 'H6jgeh5'
+# ref = 'FDtPJDz'
+
 log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {function}:{line} - {message}")
-
-PASSWORD = '11111111'
-PASSWORD2 = 'Qzmp2023'
-
 
 
 def choose_random(file_name):
@@ -34,7 +33,7 @@ def choose_random(file_name):
         return ''
 
 
-def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm='11111111'):
+def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm):
 
     file_path = 'success_reg_accounts.txt'
     data_line = f"{secret_key_dop}:{seed_prase_dop}:{password_dop}:{email_address}:{mnemonic_mm}:{password_mm}\n"
@@ -62,11 +61,67 @@ def is_account_registered(email_address):
     return True
 
 
+def generate_password(length=8):
+    characters = string.ascii_letters + string.digits
+    password = ''.join(random.choice(characters) for _ in range(length))
+    return password
+
+
+import random
+
+def select_referral_code(filename):
+
+
+
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+
+    referrals = [line.strip().split(':') for line in lines]
+    # Filter codes based on the number of redirects
+    more_than_0_less_than_3 = [ref for ref in referrals if 0 < int(ref[2]) < 3]
+    equal_to_0 = [ref for ref in referrals if int(ref[2]) == 0]
+
+    # Select the referral code based on the criteria
+    if more_than_0_less_than_3:
+        selected_referral = random.choice(more_than_0_less_than_3)
+    elif equal_to_0:
+        selected_referral = random.choice(equal_to_0)
+    else:
+        selected_referral = random.choice(referrals)
+
+    log.info(f"{selected_referral[1]} | select | ref code | random")
+
+    # Update the number of redirects
+    selected_referral[2] = str(int(selected_referral[2]) + 1)
+
+    # Update the file with the new data
+    updated_lines = [':'.join(ref) for ref in referrals]
+    with open(filename, 'w') as file:
+        file.write('\n'.join(updated_lines))
+
+    return selected_referral[1]
+
+
+
+
+
+
 def auto_reg(EMAIL, MNEMONIC):
 
+    ref = select_referral_code('ref.txt')
+
+
+    ua = UserAgent()
+
+    # Вибір випадкових позицій
+    random_user_agent = ua.random
+
     MNEMONIC = MNEMONIC.split()
+    dop_password = generate_password()
+    mm_password = generate_password()
 
     chrome_options = Options()
+    chrome_options.add_argument(f'user-agent={random_user_agent}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
@@ -109,10 +164,10 @@ def auto_reg(EMAIL, MNEMONIC):
 
         driver.find_element('xpath',
                             '/html/body/div[1]/div/div[2]/div/div/div/div[2]/form/div[1]/label/input').send_keys(
-            PASSWORD)  # enter password
+            mm_password)  # enter password
         driver.find_element('xpath',
                             '/html/body/div[1]/div/div[2]/div/div/div/div[2]/form/div[2]/label/input').send_keys(
-            PASSWORD)  # enter password twice
+            mm_password)  # enter password twice
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | 2 password | MM")
 
@@ -148,20 +203,24 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
+
         driver.find_element('xpath',
-                            '/html/body/div[3]/div/div/div[2]/form/div[1]/div/label').click()  # I understand
+                            '//*[@id="root"]/section[2]/div/div[2]/form/div[1]/div/label').click()  # I understand
+
+
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | I understand | DOP)")
 
         driver.find_element('xpath',
-                            '/html/body/div[3]/div/div/div[2]/form/div[2]/input').send_keys(
+                            '//*[@id="root"]/section[2]/div/div[2]/form/div[2]/input').send_keys(
             EMAIL)  # enter email twice
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | email | DOP")
 
-        driver.find_element('xpath', '/html/body/div[3]/div/div/div[2]/form/button').click() # continue
+        driver.find_element('xpath', '//*[@id="root"]/section[2]/div/div[2]/form/button').click() # continue
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | continue | DOP")
+
 
         driver.find_element('xpath', '//*[@id="root"]/section[2]/div/div[2]/div[1]/a/button').click() # create new wallet
         time.sleep(time_break)
@@ -169,12 +228,12 @@ def auto_reg(EMAIL, MNEMONIC):
 
         driver.find_element('xpath',
                             '//*[@id="root"]/section[2]/div/div/form/div/div[1]/input').send_keys(
-            PASSWORD2)  # enter password
+            dop_password)  # enter password
         time.sleep(time_break)
 
         driver.find_element('xpath',
                             '//*[@id="root"]/section[2]/div/div/form/div/div[2]/input').send_keys(
-            PASSWORD2)  # enter password twice
+            dop_password)  # enter password twice
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | 2 password | DOP")
 
@@ -183,9 +242,9 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break*2)
         log.info(f"{EMAIL} | click | I confirm | DOP")
 
-        log.debug('Press Enter to continue...')
-        input()
-
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(time_break * 2)
+        log.info(f"{EMAIL} | scroll | DOP")
 
         driver.find_element('xpath',
                             '//*[@id="root"]/section[2]/div/div/div[2]/div[3]/button/p').click()  # copy phrase
@@ -200,7 +259,6 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break)
 
         copied_phrase = pyperclip.paste()
-        log.info(f'seed phrase | {copied_phrase}')
         seed_phrase = copied_phrase.split()
 
         log.info(f"{EMAIL} | click | verify phase 12 words | DOP")
@@ -225,21 +283,19 @@ def auto_reg(EMAIL, MNEMONIC):
         log.info(f"{EMAIL} | click | copy secret key | DOP")
 
         secret_key = pyperclip.paste()
-        log.info(f'secret key | {secret_key}')
 
         driver.find_element('xpath',
                             '/html/body/div[3]/div/div/div/div[2]/button').click()  # done
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | done | DOP")
 
-        save_data_account(secret_key, ' '.join(seed_phrase), PASSWORD2, EMAIL, ' '.join(MNEMONIC))
-        log.success('Created account in DOP successfully!')
+        save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password)
         time.sleep(time_break)
-        print()
+
 
         driver.find_element('xpath',
                             '//*[@id="root"]/section[2]/div/div/form/div/div/input').send_keys(
-            PASSWORD2)  # input password login
+            dop_password)  # input password login
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | password | DOP")
 
@@ -258,7 +314,7 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | connect MM | DOP")
 
-        log.info(f"list of open windows | {driver.window_handles}")
+        log.info(f"counter of open windows | {len(driver.window_handles)}")
 
         # ----------------------------------------------------------------------------------------------------------------- switch to window MM
 
@@ -281,23 +337,34 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | switch network on cepolia | MM")
 
-        # ----------------------------------------------------------------------------------------------------- save ref
+        # --------------------------------------------------------------------------------------------------------------------- switch to window DOP
+
+        driver.switch_to.window(driver.window_handles[0])
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | switch | to window DOP")
+
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(time_break * 2)
+        log.info(f"{EMAIL} | scroll | DOP")
 
         driver.find_element('xpath',
-                            '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[6]/div[2]/div/div/h6/img').click()  # switch network on cepolia
+                            '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()     # copy ref code
+
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | copy ref code | DOT")
 
         driver.implicitly_wait(time_break)
         time.sleep(time_break)
 
-        ref_code = pyperclip.paste()
-        log.info(f'secret key | {ref_code}')
+        ref_code = pyperclip.paste().split('=')[1]
+        log.info(f'ref code | {ref_code}')
 
         save_data_ref_code(EMAIL, ref_code)
 
-        log.debug('Press Enter to exit...')
-        input()
+        log.success('Created account in DOP successfully!')
+        time.sleep(time_break)
+        print()
+        print()
 
         return True
 

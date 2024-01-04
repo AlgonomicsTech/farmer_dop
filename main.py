@@ -6,8 +6,6 @@ from config import *
 from loguru import logger as log
 
 
-
-
 log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {function}:{line} - {message}")
 
 def main():
@@ -52,10 +50,10 @@ def main():
             if is_account_registered(email):
                 try:
                     auto_reg(email, mnemonic)
-                    time.sleep(timeout * 3)
+                    time.sleep(timeout)
                     print()
                 except:
-                    time.sleep(timeout * 3)
+                    time.sleep(timeout)
                     continue
             else:
                 log.info(f"{email} | already registered")
@@ -63,6 +61,9 @@ def main():
                 time.sleep(2)
                 print()
                 continue
+
+            log.info("go to the next account")
+
     elif software_method == 2:
         log.error('In The Process of development...')
 
