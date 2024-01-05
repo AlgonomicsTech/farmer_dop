@@ -5,6 +5,7 @@ time_break = 5
 timeout = 30
 
 url_main_dop = 'https://doptest.dop.org/id='
+dop_to_follow = "dop_org"
 
 window_sizes = [
     (800, 600), (1024, 768), (1280, 720), (1280, 800),

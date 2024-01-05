@@ -10,8 +10,8 @@ log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {fu
 
 def main():
 
-    if exists(path='accounts_data.txt'):
-        with open(file='accounts_data.txt', mode='r', encoding='utf-8-sig') as file:
+    if exists(path='accounts.txt'):
+        with open(file='accounts.txt', mode='r', encoding='utf-8-sig') as file:
             accounts_list = [row.strip() for row in file]
     else:
         accounts_list = []

@@ -71,7 +71,7 @@ import random
 
 def select_referral_code(filename):
 
-
+    log.info(f"select | ref code | random")
 
     with open(filename, 'r') as file:
         lines = file.readlines()
@@ -89,8 +89,6 @@ def select_referral_code(filename):
     else:
         selected_referral = random.choice(referrals)
 
-    log.info(f"{selected_referral[1]} | select | ref code | random")
-
     # Update the number of redirects
     selected_referral[2] = str(int(selected_referral[2]) + 1)
 
@@ -100,10 +98,6 @@ def select_referral_code(filename):
         file.write('\n'.join(updated_lines))
 
     return selected_referral[1]
-
-
-
-
 
 
 def auto_reg(EMAIL, MNEMONIC):
