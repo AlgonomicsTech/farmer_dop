@@ -71,7 +71,7 @@ async def main():
     success_tokens = []
 
     # Читаємо токени з файлу
-    with open('twitter_token.txt', 'r') as file:
+    with open('twitter_data.txt', 'r') as file:
         tokens = file.read().splitlines()
 
     # Виконуємо дії для кожного токена
