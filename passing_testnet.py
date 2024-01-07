@@ -29,15 +29,23 @@ def is_account_registered_2(email_address):
     return False
 
 
+def twitter_not_use(lodin_twitter):
+    with open('passed_testnet.txt', 'r') as file:
+        for line in file:
+            if lodin_twitter in line.split(':')[-1]:
+                return False
+    return True
+
+
 def generate_password(length=8):
     characters = string.ascii_letters + string.digits
     password = ''.join(random.choice(characters) for _ in range(length))
     return password
 
 
-def save_data_passed_testnet(email_address, seed_phrase_dop, mnemonic_mm):
+def save_data_passed_testnet(email_address, seed_phrase_dop, mnemonic_mm, twitter_login):
     file_path = 'passed_testnet.txt'
-    data_line = f"{email_address}:{seed_phrase_dop}:{mnemonic_mm}\n"
+    data_line = f"{email_address}:{seed_phrase_dop}:{mnemonic_mm}:{twitter_login}\n"
 
     with open(file_path, 'a') as file:
         file.write(data_line)
@@ -612,7 +620,7 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
         # time.sleep(time_break)
         # log.info(f"{EMAIL} | click | step 7 - done | DOP")
 
-        save_data_passed_testnet(email, dop_mnemonic, mm_mnemonic)
+        save_data_passed_testnet(email, dop_mnemonic, mm_mnemonic, twitter_lodin)
         log.success(f'{email} | testnet passed successfully')
 
         return True
