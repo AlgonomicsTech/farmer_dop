@@ -67,37 +67,32 @@ def generate_password(length=8):
     return password
 
 
-import random
-
 def select_referral_code(filename):
-
     log.info(f"select | ref code | random")
 
     with open(filename, 'r') as file:
         lines = file.readlines()
 
     referrals = [line.strip().split(':') for line in lines]
-    # Filter codes based on the number of redirects
+
     more_than_0_less_than_3 = [ref for ref in referrals if 0 < int(ref[2]) < 3]
     equal_to_0 = [ref for ref in referrals if int(ref[2]) == 0]
 
-    # Select the referral code based on the criteria
     if more_than_0_less_than_3:
         selected_referral = random.choice(more_than_0_less_than_3)
     elif equal_to_0:
         selected_referral = random.choice(equal_to_0)
     else:
         selected_referral = random.choice(referrals)
-
-    # Update the number of redirects
     selected_referral[2] = str(int(selected_referral[2]) + 1)
 
-    # Update the file with the new data
+
     updated_lines = [':'.join(ref) for ref in referrals]
     with open(filename, 'w') as file:
         file.write('\n'.join(updated_lines))
 
     return selected_referral[1]
+
 
 
 def auto_reg(EMAIL, MNEMONIC):
@@ -337,23 +332,23 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(time_break * 2)
-        log.info(f"{EMAIL} | scroll | DOP")
-
-        driver.find_element('xpath',
-                            '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()     # copy ref code
-
-        time.sleep(time_break)
-        log.info(f"{EMAIL} | click | copy ref code | DOT")
-
-        driver.implicitly_wait(time_break)
-        time.sleep(time_break)
-
-        ref_code = pyperclip.paste().split('=')[1]
-        log.info(f'ref code | {ref_code}')
-
-        save_data_ref_code(EMAIL, ref_code)
+        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        # time.sleep(time_break * 2)
+        # log.info(f"{EMAIL} | scroll | DOP")
+        #
+        # driver.find_element('xpath',
+        #                     '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()     # copy ref code
+        #
+        # time.sleep(time_break)
+        # log.info(f"{EMAIL} | click | copy ref code | DOT")
+        #
+        # driver.implicitly_wait(time_break)
+        # time.sleep(time_break)
+        #
+        # ref_code = pyperclip.paste().split('=')[1]
+        # log.info(f'ref code | {ref_code}')
+        #
+        # save_data_ref_code(EMAIL, ref_code)
 
         log.success('Created account in DOP successfully!')
         time.sleep(time_break)

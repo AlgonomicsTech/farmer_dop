@@ -83,33 +83,45 @@ def main():
         for dot_accounts in success_reg_accounts:
             _, dop_mnemonic, _, email, mm_mnemonic, _ = dot_accounts.split(":")
             if is_account_registered_2(email):
-                passed = 0
-                while passed != 1:
-                    for i in range(twitter_index, len(accounts_twitter_list)):
-                        twitter_account = accounts_twitter_list[i]
-                        twitter_login, twitter_password = twitter_account.split(":")
-                        if twitter_not_use(twitter_login):
-                            try:
-                                testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, twitter_password)
-                                log.success("all steps passes successfully")
-                                log.info("go to the next account")
-                                time.sleep(timeout)
-                                passed = 1
-                                twitter_index = i + 1
-                                break
-                            except Exception as err:
-                                log.error(f"{email} when passing {err}")
-                                log.info("repeat process of passing")
-                                time.sleep(timeout)
-                                continue
+                if is_account_passed_testnet(email):
+                    passed = 0
+                    while passed != 1:
+                        for i in range(twitter_index, len(accounts_twitter_list)):
+                            twitter_account = accounts_twitter_list[i]
+                            twitter_login, twitter_password, twitter_email, imap_password, imap = twitter_account.split(":")
+                            if twitter_not_use(twitter_login) and is_twitter_frozen(twitter_login):
+                                try:
+                                    testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, twitter_password, twitter_email, imap_password, imap)
+                                    time.sleep(2)
+                                    log.info("go to the next account")
+                                    time.sleep(timeout//2)
+                                    print()
+                                    passed = 1
+                                    twitter_index = i + 1
+                                    break
+                                except Exception as err:
+                                    log.error(f"{email} when passing {err}")
+                                    log.info("repeat process of passing")
+                                    time.sleep(timeout)
+                                    continue
 
+                            else:
+                                log.info(f"{twitter_login} already used in DOP | or frozen")
+                                log.info("go to the next twitter")
+                                time.sleep(1)
+                                print()
+                                continue
                         else:
-                            log.error(f"{twitter_login} already used in DOP")
-                            log.info("go to the next twitter")
-                            continue
-                    else:
-                        passed = 1
-                        log.error("plase add new twitter accounts")
+                            passed = 1
+                            log.error("plase add new twitter accounts")
+                else:
+                    log.info(f"{email} already used in DOP")
+                    log.info("go to the next account")
+                    time.sleep(1)
+                    print()
+                    continue
+
+
             else:
                 log.error(f"{email} not registered in DOP")
                 log.info("go to the next account")

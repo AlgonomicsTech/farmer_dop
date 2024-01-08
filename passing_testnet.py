@@ -3,9 +3,11 @@ import string
 import time
 from fake_useragent import UserAgent
 from selenium import webdriver
+from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from config import *
+from otp import get_otp
 from loguru import logger as log
 from selenium.webdriver.common.keys import Keys
 
@@ -28,6 +30,13 @@ def is_account_registered_2(email_address):
                 return True
     return False
 
+def is_account_passed_testnet(email_address):
+    with open('passed_testnet.txt', 'r') as file:
+        for line in file:
+            if email_address in line.split(':')[0]:
+                return False
+    return True
+
 
 def twitter_not_use(lodin_twitter):
     with open('passed_testnet.txt', 'r') as file:
@@ -36,6 +45,13 @@ def twitter_not_use(lodin_twitter):
                 return False
     return True
 
+
+def is_twitter_frozen(lodin_twitter):
+    with open('frozen_twitter_accounts.txt', 'r') as file:
+        for line in file:
+            if lodin_twitter in line.split(':')[-1]:
+                return False
+    return True
 
 def generate_password(length=8):
     characters = string.ascii_letters + string.digits
@@ -52,8 +68,16 @@ def save_data_passed_testnet(email_address, seed_phrase_dop, mnemonic_mm, twitte
     log.info(f"{email_address} | data save in {file_path}")
 
 
+def save_data_frozen_twitter(twitter_login):
+    file_path = 'frozen_twitter_accounts.txt'
+    data_line = f"{twitter_login}\n"
 
-def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
+    with open(file_path, 'a') as file:
+        file.write(data_line)
+    log.info(f"{twitter_login} | data save in {file_path}")
+
+
+def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, twitter_email, imap_password, imap):
 
     ua = UserAgent()
 
@@ -192,6 +216,7 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | submit | DOP")
 
+
         driver.find_element('xpath',
                             '//*[@id="root"]/section[2]/div/div/form/div/div/input').send_keys(
             dop_password)  # enter password login
@@ -239,15 +264,20 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
         log.info(f"{EMAIL} | switch | to window DOP")
 
 
+        # log.debug('Press Enter to continue...')
+        # input()
+
+        # driver.find_element('xpath',
+        #                     '/html/body/div[3]/div/div/div/button').click()  # done
+        # time.sleep(time_break)
+        # log.info(f"{EMAIL} | click | done| DOP")
+
         scroll_height = 10 * 37.7952755906
 
         # Виконуємо скролінг на вказану висоту
         driver.execute_script(f"window.scrollBy(0, {scroll_height});")
         time.sleep(time_break)
         log.info(f"{EMAIL} | scroll на {scroll_height} pixel | DOP")
-
-        log.success(dop_password)
-
 
 
         driver.find_element('xpath',
@@ -266,128 +296,164 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
                             '//*[@id="username_or_email"]').send_keys(
             twitter_lodin)  # enter  login TWITTER
         time.sleep(time_break)
-        log.info(f"{EMAIL} | input | login | TWITTER")
+        log.info(f"{EMAIL} | input | login - {twitter_lodin} | TWITTER")
 
         driver.find_element('xpath',
                             '//*[@id="password"]').send_keys(
             twiter_password)  # enter password TWITTER
         time.sleep(time_break)
-        log.info(f"{EMAIL} | input | password | TWITTER")
+        log.info(f"{EMAIL} | input | password - {twiter_password}  | TWITTER")
 
         driver.find_element('xpath',
                             '//*[@id="allow"]').click()  # submit Twitter
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | submit | TWITTER")
 
+        log.success(dop_password)
+
+
+        try:
+            driver.find_element('xpath', '//*[@id="bd"]/div/p')
+            log.error(f"{twitter_lodin} | Account suspended.")
+            save_data_frozen_twitter(twitter_lodin)
+            return False
+        except Exception:
+            log.info(f"{twitter_lodin} | Account not suspended, continue my work | TWITTER")
+
+        time.sleep(timeout)
+        otp_password = get_otp(twitter_email, imap_password, imap)
+
+        if otp_password is None:
+            log.error(f"{twitter_email} | OTP not found")
+            return False
+
+        driver.find_element('xpath',
+                            '//*[@id="challenge_response"]').send_keys(
+            otp_password)  # enter otp_password TWITTER
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | input | OTP password - {otp_password}  | TWITTER")
+
+        driver.find_element('xpath',
+                            '//*[@id="email_challenge_submit"]').click()  # submit Twitter otp
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | click | submit otp | TWITTER")
+
+        driver.find_element('xpath',
+                            '//*[@id="allow"]').click()  # auth Twitter
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | click | auth Twitter | TWITTER")
+
+        # ------------------------------------------------------------------------------------------------------- switch to window DOP
+
+        driver.switch_to.window(driver.window_handles[0])
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | switch | to window DOP")
+
+
+        driver.find_element('xpath',
+                                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[1]/div[2]/div/button[2]').click()  # follow dop_org
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | click | follow dop_org | DOP")
+
+
+        #------------------------------------------------------------------------------------------------------- switch to window TWITTER
+
+        driver.switch_to.window(driver.window_handles[-1])
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | switch | to window TWITTER")
+        driver.find_element('xpath',
+                            '//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div[2]/div[3]/div[1]/div').click()  # follow Twitter
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | click | follow dop_org | Twitter")
+
+        # ------------------------------------------------------------------------------------------------------- switch to window DOP
+
+        driver.switch_to.window(driver.window_handles[0])
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | switch | to window DOP")
+
+        driver.find_element('xpath',
+                            '/html/body/div[3]/div/div/div/div[2]/div/label"]').click()  # I agree checkbox
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | click | I agree checkbox  | DOP")
+
+        driver.find_element('xpath',
+                            '/html/body/div[3]/div/div/div/button').click()  # Done checkbox
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | click | done checkbox | DOP")
+
+        driver.find_element('xpath',
+                            '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[2]/div[2]/button').click()  # claim step 2
+        time.sleep(timeout*2)
+        log.info(f"{EMAIL} | click | claim step 2 | DOP")
+
+        driver.find_element('xpath',
+                            '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[3]/div[2]/button').click()  # claim step 3
+        time.sleep(timeout*2)
+        log.info(f"{EMAIL} | click | claim step 3 | DOP")
+
+        # ----------------------------------------------------------------------------------------------------------------- switch to window MM
+
+        driver.switch_to.window(driver.window_handles[-1])
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | switch | to window MM")
+
+        driver.find_element('xpath',
+                            '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm in MM
+        time.sleep(timeout*2)
+        log.info(f"{EMAIL} | click | confirm step 3 | MM")
+
+        # ------------------------------------------------------------------------------------------------------- switch to window DOP
+
+        driver.switch_to.window(driver.window_handles[0])
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | switch | to window DOP")
+
+        driver.find_element('xpath',
+                            '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[4]/div[2]/button').click()  # claim step 4
+        time.sleep(timeout*2)
+        log.info(f"{EMAIL} | click | claim step 4 | DOP")
+
+        # ----------------------------------------------------------------------------------------------------------------- switch to window MM
+
+        driver.switch_to.window(driver.window_handles[-1])
+        time.sleep(timeout)
+        log.info(f"{EMAIL} | switch | to window MM")
+
+        driver.find_element('xpath',
+                            '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm in MM step 4
+        time.sleep(timeout)
+        log.info(f"{EMAIL} | click | confirm step 4 | MM")
+
+        # ------------------------------------------------------------------------------------------------------- switch to window DOP
+
+        driver.switch_to.window(driver.window_handles[0])
+        time.sleep(time_break)
+        log.info(f"{EMAIL} | switch | to window DOP")
+
         log.debug('Press Enter to continue...')
         input()
-#
-#         driver.find_element('xpath',
-#                             '//*[@id="allow"]').click()  # confirm auth Twitter
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | click | confirm auth Twitter | TWITTER")
-#
-#         # ------------------------------------------------------------------------------------------------------- switch to window DOP
-#
-#         driver.switch_to.window(driver.window_handles[0])
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | switch | to window DOP")
-#
-#
-#         driver.find_element('xpath',
-#                                 '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[1]/div[2]/div/button[2]').click()  # follow dop_org
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | click | follow dop_org | DOP")
-#
-#
-#         # ------------------------------------------------------------------------------------------------------- switch to window TWITTER
-#
-#         # driver.switch_to.window(driver.window_handles[-1])
-#         # time.sleep(time_break)
-#         # log.info(f"{EMAIL} | switch | to window TWITTER")
-#         #
-#         # driver.find_element('xpath',
-#         #                     '//*[@id="allow"]').click()  # auth Twitter step 3
-#         # time.sleep(time_break)
-#         # log.info(f"{EMAIL} | click | auth twitter step 3 | Twitter")
-#
-#
-#         # ------------------------------------------------------------------------------------------------------- switch to window TWITTER
-#
-#         driver.switch_to.window(driver.window_handles[-1])
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | switch | to window TWITTER")
-#
-#         driver.find_element('xpath',
-#                             '//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div[2]/div[3]/div[1]/div').click()  # follow Twitter
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | click | follow dop_org | Twitter")
-#
-#
-#         # ------------------------------------------------------------------------------------------------------- switch to window DOP
-#
-#         driver.switch_to.window(driver.window_handles[0])
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | switch | to window DOP")
-#
-#         driver.find_element('xpath',
-#                             '/html/body/div[3]/div/div/div/div[2]/div/label"]').click()  # I agree checkbox
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | click | I agree checkbox  | DOP")
-#
-#         driver.find_element('xpath',
-#                             '/html/body/div[3]/div/div/div/button').click()  # Done checkbox
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | click | done checkbox | DOP")
 
-        # driver.find_element('xpath',
-        #                     '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[2]/div[2]/button').click()  # claim step 2
-        # time.sleep(timeout)
-        # log.info(f"{EMAIL} | click | claim step 2 | DOP")
-        #
-        # driver.find_element('xpath',
-        #                     '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[3]/div[2]/button').click()  # claim step 3
-        # time.sleep(timeout)
-        # log.info(f"{EMAIL} | click | claim step 3 | DOP")
-        #
-        # # ----------------------------------------------------------------------------------------------------------------- switch to window MM
-        #
-        # driver.switch_to.window(driver.window_handles[-1])
-        # time.sleep(time_break)
-        # log.info(f"{EMAIL} | switch | to window MM")
-        #
-        # driver.find_element('xpath',
-        #                     '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm in MM
-        # time.sleep(time_break*5)
-        # log.info(f"{EMAIL} | click | confirm step 3 | MM")
-        #
-        # # ------------------------------------------------------------------------------------------------------- switch to window DOP
-        #
-        # driver.switch_to.window(driver.window_handles[0])
-        # time.sleep(time_break)
-        # log.info(f"{EMAIL} | switch | to window DOP")
-        #
-        # driver.find_element('xpath',
-        #                     '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[4]/div[2]/button').click()  # claim step 4
-        # time.sleep(timeout)
-        # log.info(f"{EMAIL} | click | claim step 4 | DOP")
-        #
-        # # ----------------------------------------------------------------------------------------------------------------- switch to window MM
-        #
-        # driver.switch_to.window(driver.window_handles[-1])
-        # time.sleep(time_break)
-        # log.info(f"{EMAIL} | switch | to window MM")
-        #
-        # driver.find_element('xpath',
-        #                     '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm in MM step 4
-        # time.sleep(time_break * 5)
-        # log.info(f"{EMAIL} | click | confirm step 4 | MM")
-        #
-        # # ------------------------------------------------------------------------------------------------------- switch to window DOP
-        #
-        # driver.switch_to.window(driver.window_handles[0])
-        # time.sleep(time_break)
-        # log.info(f"{EMAIL} | switch | to window DOP")
+
+        save_data_passed_testnet(EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin)
+        log.success(f'{EMAIL} | testnet passed successfully')
+
+        return True
+
+    except Exception as e:
+        log.error(f'{EMAIL}| Failed Registered | {str(e)}')
+    finally:
+        driver.quit()
+
+
+
+
+
+
+
+
+
+
 
         # driver.find_element('xpath',
         #                     '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[5]/div[2]/button').click()  # step 5
@@ -620,37 +686,38 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
         # time.sleep(time_break)
         # log.info(f"{EMAIL} | click | step 7 - done | DOP")
 
-        save_data_passed_testnet(email, dop_mnemonic, mm_mnemonic, twitter_lodin)
-        log.success(f'{email} | testnet passed successfully')
-
-        return True
-
-    except Exception as e:
-        log.error(f'{EMAIL}| Failed Registered | {str(e)}')
-    finally:
-        driver.quit()
-
-
-
-email = 'mverituvid@gmail.com'
-dop_mnemonic = 'tool bleak live unique skate profit elephant cup legend merit learn extend'
-mm_mnemonic = 'catch sting delay book torch legal purity copy swallow kid coach soft'
+    #     save_data_passed_testnet(EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin)
+    #     log.success(f'{EMAIL} | testnet passed successfully')
+    #
+    #     return True
+    #
+    # except Exception as e:
+    #     log.error(f'{EMAIL}| Failed Registered | {str(e)}')
+    # finally:
+    #     driver.quit()
 
 
-with open(file='twitter_data.txt', mode='r', encoding='utf-8-sig') as file:
-    twitter_accounts_list = [row.strip() for row in file]
 
-for account_data in twitter_accounts_list:
-    twitter_lodin, twiter_password = account_data.split(':')
-    if testnet(email, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
-        log.success("step with twitter passes successfully")
-        log.info("go to the next account")
-        time.sleep(timeout)
-        log.debug('Press Enter to continue...')
-        input()
-        break
-    else:
-        log.error("account twitter frozen")
-        log.info("go to the next twitter account")
-        time.sleep(timeout)
-        continue
+# EMAIL = 'mverituvid@gmail.com'
+# dop_mnemonic = 'tool bleak live unique skate profit elephant cup legend merit learn extend'
+# mm_mnemonic = 'catch sting delay book torch legal purity copy swallow kid coach soft'
+# save_data_passed_testnet(EMAIL, dop_mnemonic, mm_mnemonic, 'kot3')
+#
+#
+# with open(file='twitter_data.txt', mode='r', encoding='utf-8-sig') as file:
+#     twitter_accounts_list = [row.strip() for row in file]
+#
+# for account_data in twitter_accounts_list:
+#     twitter_lodin, twiter_password = account_data.split(':')
+#     if testnet(email, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password):
+#         log.success("step with twitter passes successfully")
+#         log.info("go to the next account")
+#         time.sleep(timeout)
+#         log.debug('Press Enter to continue...')
+#         input()
+#         break
+#     else:
+#         log.error("account twitter frozen")
+#         log.info("go to the next twitter account")
+#         time.sleep(timeout)
+#         continue
