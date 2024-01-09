@@ -1,10 +1,5 @@
-import re
 from dop import *
 from config import *
-import time
-import imaplib
-import email
-
 import imaplib
 import email
 import re
@@ -18,8 +13,8 @@ def get_otp(email_address, password, imap_server):
         mail = imaplib.IMAP4_SSL('imap.' + imap_server)
         mail.login(email_address, password)
         mail.select("inbox")
-
-        for _ in range(15):
+        time.sleep(timeout)
+        for _ in range(5):
             status, messages = mail.search(None, '(FROM "info@x.com")')
             messages = messages[0].split()
 
@@ -45,7 +40,7 @@ def get_otp(email_address, password, imap_server):
                             return verification_code
 
             log.error(f"{email_address} | OTP code not found in the current batch of emails")
-            time.sleep(time_break)
+            time.sleep(timeout)
 
         # Якщо OTP код так і не знайдено
         raise ValueError("Email with OTP code not found after 15 attempts")
@@ -58,7 +53,3 @@ def get_otp(email_address, password, imap_server):
     return None
 
 
-waiting_time_otp = 10  # Затримка перед наступною спробою (секунди)
-time_break = 10  # Затримка при помилці (секунди)
-
-print(get_otp('fannie73mccowan54q@outlook.com', '50HlU9PkJIXv5HW', 'outlook.com'))

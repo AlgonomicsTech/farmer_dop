@@ -6,14 +6,23 @@ from selenium import webdriver
 from selenium.common import NoSuchElementException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from config import *
 from otp import get_otp
 from loguru import logger as log
 from selenium.webdriver.common.keys import Keys
+import base64
+import json
+
 
 
 log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {function}:{line} - {message}")
 
+
+
+def encrypto_cookies(cookies):
+    decoded_bytes = base64.b64decode(cookies)
+    return decoded_bytes.decode('utf-8')
 
 def choose_random(file_name):
     try:
@@ -77,7 +86,13 @@ def save_data_frozen_twitter(twitter_login):
     log.info(f"{twitter_login} | data save in {file_path}")
 
 
-def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, twitter_email, imap_password, imap):
+def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, cookies): #twiter_password, twitter_email, imap_password, imap
+
+    question = False
+
+    decoded_cookies = encrypto_cookies(cookies)
+    cookies_dict = json.loads(decoded_cookies)
+
 
     ua = UserAgent()
 
@@ -96,7 +111,26 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
 
-    driver.get(url_testnet_dop)
+    #driver.get(url_testnet_dop)
+    driver.get("https://twitter.com")
+
+    for cookie in cookies_dict:
+        # Перевіряємо, чи містить кукі атрибут 'sameSite'
+        if 'sameSite' in cookie:
+            if cookie['sameSite'] not in ["Strict", "Lax", "None"]:
+                # Змінюємо на прийнятне значення, наприклад, на "Lax"
+                cookie['sameSite'] = "Lax"
+        # Тепер можемо безпечно додати кукі
+        driver.add_cookie(cookie)
+    # Оновлення сторінки для активації кукіс
+    driver.refresh()
+
+    time.sleep(time_break)
+
+    # driver.find_element('xpath',
+    #                     '//*[@id="layers"]/div[2]/div/div/div/div/div/div[2]/div[2]/div/div/div/div/div[2]/div/div').click()  # Got it
+    # time.sleep(time_break)
+    # log.info(f"{EMAIL} | click | auth with cookies successfully | TWITTER")
 
     driver.implicitly_wait(10)
     time.sleep(time_break)
@@ -169,9 +203,11 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
 
         # --------------------------------------------------------------------------------------------------------------------- switch to window DOP
 
-        driver.switch_to.window(driver.window_handles[0])
-        time.sleep(time_break)
-        log.info(f"{EMAIL} | switch | to window DOP")
+        # Відкриття нової вкладки з вказаним URL
+        driver.execute_script(f"window.open('{url_testnet_dop}', '_blank');")
+
+        # Переключення на нову вкладку
+        driver.switch_to.window(driver.window_handles[-1])
 
         driver.find_element('xpath', '//*[@id="root"]/section[2]/div/div[2]/form/div[1]/div/label').click()  # I agree
         time.sleep(time_break)
@@ -259,7 +295,9 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
 
         # --------------------------------------------------------------------------------------------------------------------- switch to window DOP
 
-        driver.switch_to.window(driver.window_handles[0])
+        question = True
+
+        driver.switch_to.window(driver.window_handles[-1])
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
@@ -273,6 +311,7 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
         # log.info(f"{EMAIL} | click | done| DOP")
 
         scroll_height = 10 * 37.7952755906
+        log.success(dop_password)
 
         # Виконуємо скролінг на вказану висоту
         driver.execute_script(f"window.scrollBy(0, {scroll_height});")
@@ -291,52 +330,51 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
         driver.switch_to.window(driver.window_handles[-1])
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window TWITTER")
-
-        driver.find_element('xpath',
-                            '//*[@id="username_or_email"]').send_keys(
-            twitter_lodin)  # enter  login TWITTER
-        time.sleep(time_break)
-        log.info(f"{EMAIL} | input | login - {twitter_lodin} | TWITTER")
-
-        driver.find_element('xpath',
-                            '//*[@id="password"]').send_keys(
-            twiter_password)  # enter password TWITTER
-        time.sleep(time_break)
-        log.info(f"{EMAIL} | input | password - {twiter_password}  | TWITTER")
-
-        driver.find_element('xpath',
-                            '//*[@id="allow"]').click()  # submit Twitter
-        time.sleep(time_break)
-        log.info(f"{EMAIL} | click | submit | TWITTER")
-
-        log.success(dop_password)
-
-
-        try:
-            driver.find_element('xpath', '//*[@id="bd"]/div/p')
-            log.error(f"{twitter_lodin} | Account suspended.")
-            save_data_frozen_twitter(twitter_lodin)
-            return False
-        except Exception:
-            log.info(f"{twitter_lodin} | Account not suspended, continue my work | TWITTER")
-
-        time.sleep(timeout)
-        otp_password = get_otp(twitter_email, imap_password, imap)
-
-        if otp_password is None:
-            log.error(f"{twitter_email} | OTP not found")
-            return False
-
-        driver.find_element('xpath',
-                            '//*[@id="challenge_response"]').send_keys(
-            otp_password)  # enter otp_password TWITTER
-        time.sleep(time_break)
-        log.info(f"{EMAIL} | input | OTP password - {otp_password}  | TWITTER")
-
-        driver.find_element('xpath',
-                            '//*[@id="email_challenge_submit"]').click()  # submit Twitter otp
-        time.sleep(time_break)
-        log.info(f"{EMAIL} | click | submit otp | TWITTER")
+#
+#         driver.find_element('xpath',
+#                             '//*[@id="username_or_email"]').send_keys(
+#             twitter_lodin)  # enter  login TWITTER
+#         time.sleep(time_break)
+#         log.info(f"{EMAIL} | input | login - {twitter_lodin} | TWITTER")
+#
+#         driver.find_element('xpath',
+#                             '//*[@id="password"]').send_keys(
+#             twiter_password)  # enter password TWITTER
+#         time.sleep(time_break)
+#         log.info(f"{EMAIL} | input | password - {twiter_password}  | TWITTER")
+#
+#         driver.find_element('xpath',
+#                             '//*[@id="allow"]').click()  # submit Twitter
+#         time.sleep(time_break)
+#         log.info(f"{EMAIL} | click | submit | TWITTER")
+#
+#
+#         try:
+#             driver.find_element('xpath', '//*[@id="bd"]/div/p')
+#             log.error(f"{twitter_lodin} | Account suspended.")
+#             save_data_frozen_twitter(twitter_lodin)
+#             return False
+#         except Exception:
+#             log.info(f"{twitter_lodin} | Account not suspended, continue my work | TWITTER")
+#
+#         time.sleep(timeout)
+#         otp_password = get_otp(twitter_email, imap_password, imap)
+#
+#         if otp_password is None:
+#             log.error(f"{twitter_email} | OTP not found")
+#             save_data_frozen_twitter(twitter_lodin)
+#             return False
+#
+#         driver.find_element('xpath',
+#                             '//*[@id="challenge_response"]').send_keys(
+#             otp_password)  # enter otp_password TWITTER
+#         time.sleep(time_break)
+#         log.info(f"{EMAIL} | input | OTP password - {otp_password}  | TWITTER")
+#
+#         driver.find_element('xpath',
+#                             '//*[@id="email_challenge_submit"]').click()  # submit Twitter otp
+#         time.sleep(time_break)
+#         log.info(f"{EMAIL} | click | submit otp | TWITTER")
 
         driver.find_element('xpath',
                             '//*[@id="allow"]').click()  # auth Twitter
@@ -345,7 +383,8 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
 
         # ------------------------------------------------------------------------------------------------------- switch to window DOP
 
-        driver.switch_to.window(driver.window_handles[0])
+
+        driver.switch_to.window(driver.window_handles[2])
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
@@ -368,12 +407,14 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
 
         # ------------------------------------------------------------------------------------------------------- switch to window DOP
 
-        driver.switch_to.window(driver.window_handles[0])
+        driver.switch_to.window(driver.window_handles[2])
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
+
         driver.find_element('xpath',
-                            '/html/body/div[3]/div/div/div/div[2]/div/label"]').click()  # I agree checkbox
+                            '/html/body/div[3]/div/div/div/div[2]/div/label').click()  # I agree checkbox
+
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | I agree checkbox  | DOP")
 
@@ -442,6 +483,14 @@ def testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, twiter_password, tw
 
     except Exception as e:
         log.error(f'{EMAIL}| Failed Registered | {str(e)}')
+        if question:
+            log.debug('Ми пройшли тестнет на цьому аккаунті? введи 1 або 0...\n')
+            a = int(input())
+            if a:
+                save_data_passed_testnet(EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin)
+                log.success(f'{EMAIL} | testnet passed successfully')
+            else:
+                save_data_frozen_twitter(twitter_lodin)
     finally:
         driver.quit()
 

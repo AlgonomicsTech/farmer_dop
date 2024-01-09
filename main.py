@@ -88,10 +88,10 @@ def main():
                     while passed != 1:
                         for i in range(twitter_index, len(accounts_twitter_list)):
                             twitter_account = accounts_twitter_list[i]
-                            twitter_login, twitter_password, twitter_email, imap_password, imap = twitter_account.split(":")
+                            twitter_login, twitter_password, twitter_email, imap_password, auth_token, secret_key_link, cookies = twitter_account.split(":")
                             if twitter_not_use(twitter_login) and is_twitter_frozen(twitter_login):
                                 try:
-                                    testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, twitter_password, twitter_email, imap_password, imap)
+                                    testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies)
                                     time.sleep(2)
                                     log.info("go to the next account")
                                     time.sleep(timeout//2)
@@ -138,6 +138,7 @@ def main():
     log.success('Work completed successfully')
 
     time.sleep(time_break)
+
     log.debug('Press Enter to exit...')
     input()
 
