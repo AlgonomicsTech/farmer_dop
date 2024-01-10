@@ -60,8 +60,10 @@ def main():
     if software_method == 1:
         for account in accounts_list:
             email, mnemonic = account.split(':')
-            if is_account_registered(email):
+            if is_account_registered_dop(email):
+                time.sleep(2)
                 try:
+
                     auto_reg(email, mnemonic)
                     time.sleep(timeout)
                     print()
@@ -70,12 +72,12 @@ def main():
                     continue
             else:
                 log.info(f"{email} | already registered")
-                log.info("go to the next account")
+                log.info("go to the next account...")
                 time.sleep(2)
                 print()
                 continue
 
-            log.info("go to the next account")
+            log.info("go to the next account..")
 
     elif software_method == 2:
         twitter_index = 0  # Індекс останнього використаного Twitter-акаунту
@@ -88,10 +90,11 @@ def main():
                     while passed != 1:
                         for i in range(twitter_index, len(accounts_twitter_list)):
                             twitter_account = accounts_twitter_list[i]
-                            twitter_login, twitter_password, twitter_email, imap_password, auth_token, secret_key_link, cookies = twitter_account.split(":")
+                            twitter_login, _, _, _, _, _, cookies = twitter_account.split(":")
                             if twitter_not_use(twitter_login) and is_twitter_frozen(twitter_login):
+                                log.info(f"{twitter_login} | current twitter account")
                                 try:
-                                    testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies)
+                                    run_testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies)
                                     time.sleep(2)
                                     log.info("go to the next account")
                                     time.sleep(timeout//2)

@@ -53,7 +53,7 @@ def save_data_ref_code(email, ref_code, count_referrals=0):
     log.info(f"{email} | data save in {file_path}")
 
 
-def is_account_registered(email_address):
+def is_account_registered_dop(email_address):
     with open('success_reg_accounts.txt', 'r') as file:
         for line in file:
             if email_address in line.split(':')[3]:
@@ -67,8 +67,8 @@ def generate_password(length=8):
     return password
 
 
-def select_referral_code(filename):
-    log.info(f"select | ref code | random")
+def select_referral_code(filename="ref.txt"):
+
 
     with open(filename, 'r') as file:
         lines = file.readlines()
@@ -79,26 +79,37 @@ def select_referral_code(filename):
     equal_to_0 = [ref for ref in referrals if int(ref[2]) == 0]
 
     if more_than_0_less_than_3:
-        selected_referral = random.choice(more_than_0_less_than_3)
+        selected_referral = random.choice(more_than_0_less_than_3)[1]
     elif equal_to_0:
-        selected_referral = random.choice(equal_to_0)
+        selected_referral = random.choice(equal_to_0)[1]
     else:
-        selected_referral = random.choice(referrals)
-    selected_referral[2] = str(int(selected_referral[2]) + 1)
+        selected_referral = random.choice(referrals)[1]
 
+    log.info(f"select | ref code {selected_referral} | random")
+    return selected_referral
+
+
+
+def update_referral_data(selected_referral, filename='ref.txt'):
+    with open(filename, 'r') as file:
+        lines = file.readlines()
+
+    referrals = [line.strip().split(':') for line in lines]
+
+    for ref in referrals:
+        if ref[1] == selected_referral:
+            ref[2] = str(int(ref[2]) + 1)
+            break
 
     updated_lines = [':'.join(ref) for ref in referrals]
     with open(filename, 'w') as file:
         file.write('\n'.join(updated_lines))
 
-    return selected_referral[1]
+    log.info(f'{selected_referral} | update | referral +1')
 
 
 
 def auto_reg(EMAIL, MNEMONIC):
-
-    ref = select_referral_code('ref.txt')
-
 
     ua = UserAgent()
 
@@ -115,6 +126,8 @@ def auto_reg(EMAIL, MNEMONIC):
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
 
+    time.sleep(time_break)
+    ref = select_referral_code('ref.txt')
     driver.get(url_main_dop + ref)
 
     driver.implicitly_wait(10)
@@ -332,23 +345,8 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
-        # driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        # time.sleep(time_break * 2)
-        # log.info(f"{EMAIL} | scroll | DOP")
-        #
-        # driver.find_element('xpath',
-        #                     '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()     # copy ref code
-        #
-        # time.sleep(time_break)
-        # log.info(f"{EMAIL} | click | copy ref code | DOT")
-        #
-        # driver.implicitly_wait(time_break)
-        # time.sleep(time_break)
-        #
-        # ref_code = pyperclip.paste().split('=')[1]
-        # log.info(f'ref code | {ref_code}')
-        #
-        # save_data_ref_code(EMAIL, ref_code)
+
+        update_referral_data(selected_referral=ref)
 
         log.success('Created account in DOP successfully!')
         time.sleep(time_break)
