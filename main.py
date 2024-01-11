@@ -61,9 +61,8 @@ def main():
         for account in accounts_list:
             email, mnemonic = account.split(':')
             if is_account_registered_dop(email):
-                time.sleep(2)
+                time.sleep(3)
                 try:
-
                     auto_reg(email, mnemonic)
                     time.sleep(timeout)
                     print()

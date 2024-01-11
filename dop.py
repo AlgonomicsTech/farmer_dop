@@ -69,14 +69,13 @@ def generate_password(length=8):
 
 def select_referral_code(filename="ref.txt"):
 
-
     with open(filename, 'r') as file:
         lines = file.readlines()
 
     referrals = [line.strip().split(':') for line in lines]
 
-    more_than_0_less_than_3 = [ref for ref in referrals if 0 < int(ref[2]) < 3]
-    equal_to_0 = [ref for ref in referrals if int(ref[2]) == 0]
+    more_than_0_less_than_3 = [ref for ref in referrals if ref[2].isdigit() and 0 < int(ref[2]) < 3]
+    equal_to_0 = [ref for ref in referrals if ref[2].isdigit() and int(ref[2]) == 0]
 
     if more_than_0_less_than_3:
         selected_referral = random.choice(more_than_0_less_than_3)[1]
@@ -87,8 +86,6 @@ def select_referral_code(filename="ref.txt"):
 
     log.info(f"select | ref code {selected_referral} | random")
     return selected_referral
-
-
 
 def update_referral_data(selected_referral, filename='ref.txt'):
     with open(filename, 'r') as file:
