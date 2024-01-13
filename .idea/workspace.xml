@@ -4,8 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="6bf64897-cd13-4980-9ea3-b5e59b22923f" name="Changes" comment=" step by step">
-      <change afterPath="$PROJECT_DIR$/solver_captcha.py" afterDir="false" />
+    <list default="true" id="6bf64897-cd13-4980-9ea3-b5e59b22923f" name="Changes" comment=" step by step 2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dop.py" beforeDir="false" afterPath="$PROJECT_DIR$/dop.py" afterDir="false" />
@@ -138,7 +137,15 @@
       <option name="project" value="LOCAL" />
       <updated>1704896032111</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary=" step by step 2">
+      <option name="closed" value="true" />
+      <created>1704988972241</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1704988972242</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -148,6 +155,7 @@
     <MESSAGE value=" 1.1.3" />
     <MESSAGE value=" cookies add" />
     <MESSAGE value=" step by step" />
-    <option name="LAST_COMMIT_MESSAGE" value=" step by step" />
+    <MESSAGE value=" step by step 2" />
+    <option name="LAST_COMMIT_MESSAGE" value=" step by step 2" />
   </component>
 </project>

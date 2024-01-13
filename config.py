@@ -1,8 +1,8 @@
 METAMASK_EXTENSION_PATH = r"C:\Users\romak\PycharmProjects\farmer_dop\MetaMask.crx"
 METAMASK_DATA_PATH = r'C:\Users\romak\AppData\Roaming\MetaMask'
 
-time_break = 1
-timeout = 10
+time_break = 2
+timeout = 15
 count_attempt = 2  # 2
 
 url_main_dop = 'https://doptest.dop.org/id='

@@ -1,9 +1,9 @@
 import time
 from logo import print_ALGONOMICS
 from os.path import exists
-from dop import *
+from auto_reg import *
 from config import *
-from passing_testnet import *
+from testnet import *
 from loguru import logger as log
 
 
@@ -82,7 +82,7 @@ def main():
         twitter_index = 0  # Індекс останнього використаного Twitter-акаунту
 
         for dot_accounts in success_reg_accounts:
-            _, dop_mnemonic, _, email, mm_mnemonic, _ = dot_accounts.split(":")
+            _, dop_mnemonic, _, email, mm_mnemonic, _, step_progress = dot_accounts.split(":")
             if is_account_registered_2(email):
                 if is_account_passed_testnet(email):
                     passed = 0
@@ -93,7 +93,7 @@ def main():
                             if twitter_not_use(twitter_login) and is_twitter_frozen(twitter_login):
                                 log.info(f"{twitter_login} | current twitter account")
                                 try:
-                                    run_testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies)
+                                    run_testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_progress)
                                     time.sleep(2)
                                     log.info("go to the next account")
                                     time.sleep(timeout//2)

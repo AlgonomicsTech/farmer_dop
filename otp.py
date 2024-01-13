@@ -1,4 +1,4 @@
-from dop import *
+from auto_reg import *
 from config import *
 import imaplib
 import email

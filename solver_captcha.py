@@ -1,4 +1,4 @@
-from dop import *
+from auto_reg import *
 from anticaptchaofficial.recaptchav2proxyless import *
 import time
 

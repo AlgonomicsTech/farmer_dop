@@ -36,7 +36,7 @@ def choose_random(file_name):
 def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm):
 
     file_path = 'success_reg_accounts.txt'
-    data_line = f"{secret_key_dop}:{seed_prase_dop}:{password_dop}:{email_address}:{mnemonic_mm}:{password_mm}\n"
+    data_line = f"{secret_key_dop}:{seed_prase_dop}:{password_dop}:{email_address}:{mnemonic_mm}:{password_mm}:0\n"
 
     with open(file_path, 'a') as file:
         file.write(data_line)

@@ -19,8 +19,7 @@ import json
 
 
 
-log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {function}:{line} - {message}")
-
+log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {line}:{function} | {message}")
 
 
 def encrypto_cookies(cookies):
@@ -34,6 +33,7 @@ def choose_random(file_name):
         return random.choice(codes) if codes else ''
     except FileNotFoundError:
         return ''
+
 
 def is_account_registered_2(email_address):
     with open('success_reg_accounts.txt', 'r') as file:
@@ -64,6 +64,7 @@ def is_twitter_frozen(lodin_twitter):
             if lodin_twitter in line.split(':')[-1]:
                 return False
     return True
+
 
 def generate_password(length=8):
     characters = string.ascii_letters + string.digits
@@ -96,7 +97,62 @@ def save_data_ref_code(email, ref_code, count_referrals=0):
 
     with open(file_path, 'a') as file:
         file.write(data_line)
-    log.info(f"{email} | data save in {file_path}")
+    log.success(f"{email} | save {ref_code}")
+
+
+def save_progress(email, number):
+    updated_lines = []
+    found = False
+
+    with open("success_reg_accounts.txt", 'r') as file:
+        lines = file.readlines()
+
+    for line in lines:
+        parts = line.strip().split(':')
+        if len(parts) > 3 and parts[3] == email:
+            found = True
+            parts[-1] = str(number)  # Заміна останнього елемента на нове число
+            line = ':'.join(parts) + '\n'
+        updated_lines.append(line)
+
+    if found:
+        with open("success_reg_accounts.txt", 'w') as file:
+            file.writelines(updated_lines)
+        return True
+    else:
+        return False
+
+def update_step_progress(email):
+    with open("success_reg_accounts.txt", 'r') as file:
+        lines = file.readlines()
+
+    for line in lines:
+        parts = line.strip().split(':')
+        if len(parts) > 3 and parts[3] == email:
+            return int(parts[-1])
+
+    log.error(f"{email} | not found")
+    return None
+
+
+def copy_ref_code(driver, EMAIL):
+    time.sleep(time_break)
+    log.info(f"{EMAIL} | click | step 7 - done | DOP")
+
+    driver.find_element('xpath',
+                        '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()  # copy ref code
+
+    time.sleep(time_break)
+    log.info(f"{EMAIL} | click | copy ref code | DOT")
+
+    driver.implicitly_wait(time_break)
+    time.sleep(time_break)
+
+    ref_code = pyperclip.paste().split('=')[1]
+    log.info(f'ref code | {ref_code}')
+
+    save_data_ref_code(EMAIL, ref_code)
+    save_progress(EMAIL, 7)
 
 
 
@@ -238,12 +294,12 @@ def step1(driver, EMAIL):
     # Виконуємо скролінг на вказану висоту
     driver.execute_script(f"window.scrollBy(0, {scroll_height});")
     time.sleep(time_break)
-    log.info(f"{EMAIL} | scroll на {scroll_height} pixel | DOP")
+    log.info(f"{EMAIL} | scroll {int(scroll_height)} pixel | DOP")
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[1]/div[2]/div/div/button').click()  # auth Twitter step 1
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | auth twitter step 1 | DOP")
+    log.info(f"{EMAIL} | click | auth twitter | DOP")
 
     log.info(f"counter of open windows | {len(driver.window_handles)}")
 
@@ -278,7 +334,7 @@ def step1(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="react-root"]/div/div/div[2]/main/div/div/div/div/div/div[3]/div/div/div/div/div[1]/div[2]/div[3]/div[1]/div').click()  # follow Twitter
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | follow dop_org | Twitter")
+    log.info(f"{EMAIL} | click | follow @dop_org | Twitter")
 
     # ------------------------------------------------------------------------------------------------------- switch to window DOP
 
@@ -287,6 +343,10 @@ def step1(driver, EMAIL):
     driver.switch_to.window(driver.window_handles[2])
     time.sleep(time_break)
     log.info(f"{EMAIL} | switch | to window DOP")
+
+    log.debug('Solve the captcha and press enter to continue..')
+    input()
+    save_progress(EMAIL, 1)
 
 
 
@@ -297,19 +357,21 @@ def step2(driver, EMAIL):
     # Виконуємо скролінг на вказану висоту
     driver.execute_script(f"window.scrollBy(0, {scroll_height});")
     time.sleep(time_break)
-    log.info(f"{EMAIL} | scroll на {scroll_height} pixel | DOP")
+    log.info(f"{EMAIL} | scroll на {int(scroll_height)} pixel | DOP")
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[2]/div[2]/button').click()  # claim step 2
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | claim step 2 | DOP")
+    log.info(f"{EMAIL} | click | claim | DOP")
+
+    save_progress(EMAIL, 2)
 
 
 def step3(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[3]/div[2]/button').click()  # claim step 3
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | claim step 3 | DOP")
+    log.info(f"{EMAIL} | click | claim | DOP")
 
     # ----------------------------------------------------------------------------------------------------------------- switch to window MM
 
@@ -320,12 +382,14 @@ def step3(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm in MM
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | confirm step 3 | MM")
+    log.info(f"{EMAIL} | click | confirm | MM")
 
     # ------------------------------------------------------------------------------------------------------- switch to window DOP
 
+    save_progress(EMAIL, 3)
+
     driver.switch_to.window(driver.window_handles[2])
-    time.sleep(time_break)
+    time.sleep(timeout)
     log.info(f"{EMAIL} | switch | to window DOP")
 
 
@@ -333,7 +397,7 @@ def step4(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[4]/div[2]/button').click()  # claim step 4
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | claim step 4 | DOP")
+    log.info(f"{EMAIL} | click | claim | DOP")
 
     # ----------------------------------------------------------------------------------------------------------------- switch to window MM
 
@@ -344,9 +408,11 @@ def step4(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm in MM step 4
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | confirm step 4 | MM")
+    log.info(f"{EMAIL} | click | confirm | MM")
 
     # ------------------------------------------------------------------------------------------------------- switch to window DOP
+
+    save_progress(EMAIL, 4)
 
     driver.switch_to.window(driver.window_handles[2])
     time.sleep(time_break)
@@ -357,18 +423,18 @@ def step5(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[5]/div[2]/button').click()  # step 5
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 5 | DOP")
+    log.info(f"{EMAIL} | click | get started | DOP")
 
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-deposit"]/section/section/form/div[1]/div[2]/div/img').click()  # step 5 - choice coin
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 5 - select coin | DOP")
+    log.info(f"{EMAIL} | click | select coin | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div[2]/div[2]/div[1]').click()  # step 5 - choice USTD
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 5 - select USTD | DOP")
+    log.info(f"{EMAIL} | click | select USTD | DOP")
 
     amount_usdt = random.randint(7000, 10000)
     log.info(amount_usdt)
@@ -376,16 +442,17 @@ def step5(driver, EMAIL):
                         '//*[@id="left-tabs-example-tabpane-deposit"]/section/section/form/div[2]/input').send_keys(
         amount_usdt)
     time.sleep(time_break)
+    log.info(f"{EMAIL} | input | {amount_usdt} USDT")
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-deposit"]/section/section/form/button').click()  # step 5 - encrypt
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 5 - encrypt {amount_usdt} usdt | DOP")
+    log.info(f"{EMAIL} | click | encrypt {amount_usdt} usdt | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div[2]/div[3]/button[2]').click()  # step 5 - confirm
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 5 - confirm {amount_usdt} usdt | DOP")
+    log.info(f"{EMAIL} | click | confirm {amount_usdt} usdt | DOP")
 
     # ----------------------------------------------------------------------------------------------------------------- switch to window MM
 
@@ -398,30 +465,27 @@ def step5(driver, EMAIL):
                         '//*[@id="app-content"]/div/div/div/div[9]/footer/button[2]').click()  # confirm-1 in MM step 5
     time.sleep(timeout)
 
-    log.info(f"{EMAIL} | click | confirm-1 step 5 | MM")
+    log.info(f"{EMAIL} | click | confirm-1 | MM")
 
 
     driver.find_element('xpath',
                         '//*[@id="app-content"]/div/div/div/div[10]/footer/button[2]').click()  # confirm-2 in MM step 5
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | confirm-2 step 5 | MM")
+    log.info(f"{EMAIL} | click | confirm-2 | MM")
 
-    # # Отримання списку усіх відкритих вікон
-    # log.info(f"Всі відкриті вікна | {driver.window_handles}")
-    # time.sleep(timeout//2)
-    # # Отримання поточного вікна
-    # log.info(f"Поточне вікно | {driver.current_window_handle}")
-
-
-    log.debug('Confirm-3 step 5  - Press Enter to continue...')
-    input()
 
     time.sleep(timeout * 2)
 
-    # driver.find_element('xpath',
-    #                     '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm-3 in MM step 5
-    # time.sleep(timeout*2)
-    # log.info(f"{EMAIL} | click | confirm-3 step 5 | MM")
+    driver.switch_to.window(driver.window_handles[-1])
+    time.sleep(timeout)
+    log.info(f"{EMAIL} | switch | to window MM")
+
+    time.sleep(timeout * 2)
+
+    driver.find_element('xpath',
+                        '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm-3 in MM step 5
+    time.sleep(timeout*2)
+    log.info(f"{EMAIL} | click | confirm-3 | MM")
 
 
 
@@ -431,15 +495,17 @@ def step5(driver, EMAIL):
     time.sleep(time_break)
     log.info(f"{EMAIL} | switch | to window DOP")
 
+    save_progress(EMAIL, 5)
+
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div/div[2]/button[1]').click()  # step 5 - close
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 5 - close | DOP")
+    log.info(f"{EMAIL} | click | close | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[7]/div/div/div/div[2]/button').click()  # step 5 - okey
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 5 - okey | DOP")
+    log.info(f"{EMAIL} | click | okey | DOP")
 
 
 def step6(driver, EMAIL):
@@ -447,7 +513,7 @@ def step6(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[6]/div[2]/button').click()  # step 6 - get started
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 6 - get started | DOP")
+    log.info(f"{EMAIL} | click | get started | DOP")
 
     dop_test_adress = '0x130c318bef3a60f05541955003b2baa1d691335f'
 
@@ -461,28 +527,29 @@ def step6(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-transfer"]/section/section/form/div[2]/div').click()  # step 6 - select token
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 6 - select token | DOP")
+    log.info(f"{EMAIL} | click | select token | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div[2]/div[2]/div[1]').click()  # step 6 - select token USDT
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 6 - select token USDT | DOP")
+    log.info(f"{EMAIL} | click | select token USDT | DOP")
 
     amount_usdt = random.randint(1, 3000)
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-transfer"]/section/section/form/div[3]/input').send_keys(
-        amount_usdt)  #
+        amount_usdt)
     time.sleep(time_break)
+    log.info(f"{EMAIL} | input | {amount_usdt} USDT")
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-transfer"]/section/section/form/button').click()  # step 6 - send submit
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 6 - send submit {amount_usdt} USDT | DOP")
+    log.info(f"{EMAIL} | click | send submit {amount_usdt} USDT | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div[2]/div[3]/button[2]').click()  # step 6 - send confirm
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | step 6 - send confirm {amount_usdt} USDT | DOP")
+    log.info(f"{EMAIL} | click | send confirm {amount_usdt} USDT | DOP")
 
 
     # ----------------------------------------------------------------------------------------------------------------- switch to window MM
@@ -494,29 +561,23 @@ def step6(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="app-content"]/div/div/div/div[9]/footer/button[2]').click()  # confirm-1 in MM step 6
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | confirm-1 step 6 | MM")
+    log.info(f"{EMAIL} | click | confirm-1 | MM")
 
     driver.find_element('xpath',
                         '//*[@id="app-content"]/div/div/div/div[10]/footer/button[2]').click()  # confirm-2 in MM step 6
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | confirm-2 step 6 | MM")
-
-    # # Отримання списку усіх відкритих вікон
-    # log.info(f"Всі відкриті вікна | {driver.window_handles}")
-    # time.sleep(timeout // 2)
-    # # Отримання поточного вікна
-    # log.info(f"Поточне вікно | {driver.current_window_handle}")
-
-
-    log.debug('Confirm-3 step 6  - Press Enter to continue...')
-    input()
-
+    log.info(f"{EMAIL} | click | confirm-2 | MM")
     time.sleep(timeout * 2)
 
-    # driver.find_element('xpath',
-    #                     '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm-3 in MM step 6
-    # time.sleep(timeout * 2)
-    # log.info(f"{EMAIL} | click | confirm-3 step 6 | MM")
+    driver.switch_to.window(driver.window_handles[-1])
+    time.sleep(timeout)
+    log.info(f"{EMAIL} | switch | to window MM")
+    time.sleep(timeout * 2)
+
+    driver.find_element('xpath',
+                        '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm-3 in MM step 6
+    time.sleep(timeout * 2)
+    log.info(f"{EMAIL} | click | confirm-3 | MM")
 
     # -----------------------------------------------------------------------switch to window DOP
 
@@ -524,15 +585,17 @@ def step6(driver, EMAIL):
     time.sleep(time_break)
     log.info(f"{EMAIL} | switch | to window DOP")
 
+    save_progress(EMAIL, 6)
+
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div/div[2]/button[1]').click()  # step 6 - close
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 6 - close | DOP")
+    log.info(f"{EMAIL} | click | close | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div/div[2]/button').click()  # step 6 - ok
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 6 - ok | DOP")
+    log.info(f"{EMAIL} | click | okey | DOP")
 
 
 
@@ -540,17 +603,17 @@ def step7(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[7]/div[2]/button').click()  # step 7 - get started
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 7 - get started | DOP")
+    log.info(f"{EMAIL} | click | get started | DOP")
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-withdraw"]/section/section/form/div[2]/div/img').click()  # step 7 - select token
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 7 - select token | DOP")
+    log.info(f"{EMAIL} | click | select token | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div[2]/div[2]/div[1]').click()  # step 7 - select token USDT
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 7 - select token USDT | DOP")
+    log.info(f"{EMAIL} | click | select token USDT | DOP")
 
     amount_usdt = random.randint(1, 3000)
     driver.find_element('xpath',
@@ -562,13 +625,14 @@ def step7(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-withdraw"]/section/section/form/div[4]/input').send_keys(
         dop_password)  # input password
+    log.success(dop_password)
     time.sleep(time_break)
     log.info(f"{EMAIL} | input | {dop_password} | DOP")
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-withdraw"]/section/section/form/button').click()  # step 7 - decrypt
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 7 - decrypt {amount_usdt} USDT | DOP")
+    log.info(f"{EMAIL} | click | decrypt {amount_usdt} USDT | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div[2]/div[2]/button[2]').click()  # step 7 - decrypt confirm
@@ -584,73 +648,50 @@ def step7(driver, EMAIL):
     driver.find_element('xpath',
                         '//*[@id="app-content"]/div/div/div/div[3]/div[3]/footer/button[2]').click()  # confirm-1 in MM step 7
     time.sleep(timeout)
-    log.info(f"{EMAIL} | click | confirm-1 step 7 | MM")
+    log.info(f"{EMAIL} | click | confirm | MM")
 
     # ------------------------------------------------------------------------------------------------------- switch to window DOP
 
     driver.switch_to.window(driver.window_handles[2])
-    time.sleep(time_break)
+    time.sleep(timeout*3)
     log.info(f"{EMAIL} | switch | to window DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div/div[2]/button[1]').click()  # step 7 - close
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 7 - close | DOP")
-
-
-    # ----- copy ref....
+    log.info(f"{EMAIL} | click | close | DOP")
 
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div/button').click()  # step 7 - done
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 7 - done | DOP")
+    log.info(f"{EMAIL} | click | done | DOP")
+
 
 
 
 def refresh(driver):
-
     driver.switch_to.window(driver.window_handles[2])
     time.sleep(time_break)
     log.info(f" REFRESH | switch | to window DOP")
-
     driver.back()
     time.sleep(time_break*3)
     driver.forward()
 
 
-def strong_refresh(driver):
-    pass
-
-
 def finish(driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question):
     if question:
-        log.debug('Ми пройшли тестнет на цьому аккаунті? введи 1 або 0...\n')
+        log.debug('Save account data as a successfully passed testnet? (yes - 1/no - 0):\n')
         passing = int(input())
         if passing:
 
             save_data_passed_testnet(EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin)
             log.success(f'{EMAIL} | testnet passed successfully')
-
-            driver.find_element('xpath',
-                                '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()  # copy ref code
-
             time.sleep(time_break)
-            log.info(f"{EMAIL} | click | copy ref code | DOT")
-
-            driver.implicitly_wait(time_break)
-            time.sleep(time_break)
-
-            ref_code = pyperclip.paste().split('=')[1]
-            log.info(f'ref code | {ref_code}')
-
-            save_data_ref_code(EMAIL, ref_code)
-
-
-            time.sleep(time_break*2)
             print()
             print()
-        # else:
-        #     save_data_frozen_twitter(twitter_lodin)
+
+            copy_ref_code(driver, EMAIL)
+
     driver.quit()
 
 
@@ -669,139 +710,98 @@ def run_step(step, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, ques
             run_step(step, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question, attempt_number)
         else:
             log.error(f"{step.__name__} | the limit of attempts has been exceeded")
-            log.debug("Do you want to retry this step? (yes - 1/no - 0): ")
+            log.debug("Do you want to retry this step? (yes - 1/no - 0):\n")
             response = int(input())
             if response:
                 attempt_number = 0
                 run_step(step, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question, attempt_number)
             else:
-                log.info(f"Skipping {step.__name__} and moving to the next step.")
+                step_progress = int(str(step.__name__)[-1])
+                save_progress(EMAIL, step_progress)
+                log.info(f"SKIPP | {step.__name__} | moving to the next step.")
+                print()
 
-def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_lodin, cookies):
+
+def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_progress):
+    step_progress = int(step_progress)
+    question = False
+
+    decoded_cookies = encrypto_cookies(cookies)
+    cookies_dict = json.loads(decoded_cookies)
+    ua = UserAgent()
+    random_user_agent = ua.random
+    chrome_options = Options()
+    chrome_options.add_argument(f'user-agent={random_user_agent}')
+    chrome_options.add_extension('MetaMask_Chrome.crx')
+    driver = webdriver.Chrome(options=chrome_options)
+    driver.maximize_window()
+    driver.get("https://twitter.com")
+
+    for cookie in cookies_dict:
+        if 'sameSite' in cookie:
+            if cookie['sameSite'] not in ["Strict", "Lax", "None"]:
+                cookie['sameSite'] = "Lax"
+        driver.add_cookie(cookie)
+
+    driver.refresh()
+    time.sleep(time_break)
+    driver.implicitly_wait(10)
+    time.sleep(time_break)
+    driver.switch_to.window(driver.window_handles[1])
+    time.sleep(time_break)
+
     try:
-        question = False
-
-        decoded_cookies = encrypto_cookies(cookies)
-        cookies_dict = json.loads(decoded_cookies)
-
-        ua = UserAgent()
-
-        # Вибір випадкових позицій
-        random_user_agent = ua.random
-
-        chrome_options = Options()
-        chrome_options.add_argument(f'user-agent={random_user_agent}')
-        chrome_options.add_extension('MetaMask_Chrome.crx')
-        driver = webdriver.Chrome(options=chrome_options)
-        driver.maximize_window()
-
-        driver.get("https://twitter.com")
-
-        for cookie in cookies_dict:
-
-            if 'sameSite' in cookie:
-                if cookie['sameSite'] not in ["Strict", "Lax", "None"]:
-                    cookie['sameSite'] = "Lax"
-
-            driver.add_cookie(cookie)
-
-        driver.refresh()
-
-        time.sleep(time_break)
-
-        driver.implicitly_wait(10)
-        time.sleep(time_break)
-
-        driver.switch_to.window(driver.window_handles[1])
-        time.sleep(time_break)
-
         main_step(driver, EMAIL, mm_mnemonic, dop_mnemonic)
+        log.info(f'{EMAIL} | current start step | {step_progress}')
 
+        if step_progress < 1:
+            run_step(step1, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            question = True
+            step_progress = update_step_progress(EMAIL)
+            print()
 
-        run_step(step1, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
+        if step_progress < 2:
+            run_step(step2, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
 
-        question = True
+        if step_progress < 3:
+            run_step(step3, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
 
-        log.debug('Знайдена каптча, після вирішення вручну натисніть ентер щоб продовжити роботу...')
-        input()
+        if step_progress < 4:
+            run_step(step4, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
 
-        run_step(step2, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
-        time.sleep(time_break)
-        run_step(step3, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
-        time.sleep(time_break)
-        run_step(step4, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
-        run_step(step5, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
-        time.sleep(time_break*2)
-        run_step(step6, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
-        time.sleep(time_break*2)
-        run_step(step7, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
-        time.sleep(time_break*2)
-        finish(driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_lodin, question)
+        if step_progress < 5:
+            run_step(step5, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress < 6:
+            run_step(step6, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress < 7:
+            run_step(step7, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress == 7:
+            copy_ref_code(driver, EMAIL)
+            save_data_passed_testnet(EMAIL, dop_mnemonic, mm_mnemonic, twitter_login)
+            log.success(f'{EMAIL} | testnet passed successfully')
+
     except Exception as err:
         log.error(f"run testnet | {err}")
-        log.debug('Press Enter to continue...')
         input()
-
-
-
-
-
-
-
-
-
-
-        # log.debug('Press Enter to continue...')
-        # input()
-
-        # driver.find_element('xpath',
-        #                     '/html/body/div[3]/div/div/div/button').click()  # done
-        # time.sleep(time_break)
-        # log.info(f"{EMAIL} | click | done| DOP")
-
-#
-#         driver.find_element('xpath',
-#                             '//*[@id="username_or_email"]').send_keys(
-#             twitter_lodin)  # enter  login TWITTER
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | input | login - {twitter_lodin} | TWITTER")
-#
-#         driver.find_element('xpath',
-#                             '//*[@id="password"]').send_keys(
-#             twiter_password)  # enter password TWITTER
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | input | password - {twiter_password}  | TWITTER")
-#
-#         driver.find_element('xpath',
-#                             '//*[@id="allow"]').click()  # submit Twitter
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | click | submit | TWITTER")
-#
-#
-#         try:
-#             driver.find_element('xpath', '//*[@id="bd"]/div/p')
-#             log.error(f"{twitter_lodin} | Account suspended.")
-#             save_data_frozen_twitter(twitter_lodin)
-#             return False
-#         except Exception:
-#             log.info(f"{twitter_lodin} | Account not suspended, continue my work | TWITTER")
-#
-#         time.sleep(timeout)
-#         otp_password = get_otp(twitter_email, imap_password, imap)
-#
-#         if otp_password is None:
-#             log.error(f"{twitter_email} | OTP not found")
-#             save_data_frozen_twitter(twitter_lodin)
-#             return False
-#
-#         driver.find_element('xpath',
-#                             '//*[@id="challenge_response"]').send_keys(
-#             otp_password)  # enter otp_password TWITTER
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | input | OTP password - {otp_password}  | TWITTER")
-#
-#         driver.find_element('xpath',
-#                             '//*[@id="email_challenge_submit"]').click()  # submit Twitter otp
-#         time.sleep(time_break)
-#         log.info(f"{EMAIL} | click | submit otp | TWITTER")
-
+        finish(driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
