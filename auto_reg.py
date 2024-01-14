@@ -21,7 +21,7 @@ from selenium.webdriver.common.keys import Keys
 
 # ref = 'FDtPJDz'
 
-log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {function}:{line} - {message}")
+log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {line}:{function} | {message}")
 
 
 def choose_random(file_name):
@@ -33,10 +33,10 @@ def choose_random(file_name):
         return ''
 
 
-def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm):
+def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm, proxy):
 
     file_path = 'success_reg_accounts.txt'
-    data_line = f"{secret_key_dop}:{seed_prase_dop}:{password_dop}:{email_address}:{mnemonic_mm}:{password_mm}:0\n"
+    data_line = f"{secret_key_dop}:{seed_prase_dop}:{password_dop}:{email_address}:{mnemonic_mm}:{password_mm}:{proxy}:0\n"
 
     with open(file_path, 'a') as file:
         file.write(data_line)
@@ -56,7 +56,7 @@ def save_data_ref_code(email, ref_code, count_referrals=0):
 def is_account_registered_dop(email_address):
     with open('success_reg_accounts.txt', 'r') as file:
         for line in file:
-            if email_address in line.split(':')[3]:
+            if email_address in line.split(':'):
                 return False
     return True
 
@@ -105,8 +105,15 @@ def update_referral_data(selected_referral, filename='ref.txt'):
     log.info(f'{selected_referral} | update | referral +1')
 
 
+def proxy_not_use(proxy):
+    with open('passed_testnet.txt', 'r') as file:
+        for line in file:
+            if proxy in line.split(':')[-1]:
+                return False
+    return True
 
-def auto_reg(EMAIL, MNEMONIC):
+
+def auto_reg(EMAIL, MNEMONIC, proxy):
 
     ua = UserAgent()
 
@@ -117,14 +124,19 @@ def auto_reg(EMAIL, MNEMONIC):
     dop_password = generate_password()
     mm_password = generate_password()
 
+    proxy_auth, proxy = proxy.split('@')
+
     chrome_options = Options()
+    chrome_options.add_argument("--start-minimized")
     chrome_options.add_argument(f'user-agent={random_user_agent}')
+    chrome_options.add_argument(f'--proxy-server=http://{proxy}')
+    chrome_options.add_argument(f'--proxy-auth={proxy_auth}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
 
     time.sleep(time_break)
-    ref = select_referral_code('ref.txt')
+    ref = "FDtPJDz"         # select_referral_code('ref.txt')
     driver.get(url_main_dop + ref)
 
     driver.implicitly_wait(10)
@@ -288,7 +300,8 @@ def auto_reg(EMAIL, MNEMONIC):
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | done | DOP")
 
-        save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password)
+        proxy = proxy.split(":")[0]
+        save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password, proxy)
         time.sleep(time_break)
 
 

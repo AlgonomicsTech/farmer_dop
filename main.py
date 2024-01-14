@@ -7,7 +7,7 @@ from testnet import *
 from loguru import logger as log
 
 
-log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {function}:{line} - {message}")
+log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {line}:{function} | {message}")
 
 def main():
 
@@ -41,6 +41,12 @@ def main():
     else:
         ref_code_list = []
 
+    if exists(path='proxy.txt'):
+        with open(file='proxy.txt', mode='r', encoding='utf-8-sig') as file:
+            proxy_list = [row.strip() for row in file]
+    else:
+        proxy_list = []
+
     print()
     print_ALGONOMICS("ALGONOMICS")
     time.sleep(2)
@@ -48,7 +54,7 @@ def main():
 
     log.success(f'Downloaded successfully {len(accounts_list)} accounts for registration | {len(accounts_twitter_list)} twitter accounts | {len(ref_code_list)} referral codes')
     log.success(
-        f'Downloaded successfully {len(success_reg_accounts)} successfully registered accounts | {len(accounts_list_passed_testnet)} successfully passing testnet')
+        f'Downloaded successfully {len(success_reg_accounts)} successfully registered accounts | {len(accounts_list_passed_testnet)} successfully passing testnet | {len(proxy_list)} proxy')
     log.info('💰 DONATION EVM ADDRESS: 0x4A080654795e526801954493BD0D712609d0ccEF')
     time.sleep(2)
 
@@ -58,17 +64,24 @@ def main():
     print()
 
     if software_method == 1:
+        proxy_index = 0
+
         for account in accounts_list:
             email, mnemonic = account.split(':')
             if is_account_registered_dop(email):
-                time.sleep(3)
-                try:
-                    auto_reg(email, mnemonic)
-                    time.sleep(timeout)
-                    print()
-                except:
-                    time.sleep(timeout)
-                    continue
+                use_proxy = 0
+                while use_proxy != 1:
+                    for i in range(proxy_index, len(proxy_list)):
+                        PROXY = proxy_list[i]
+                        if proxy_not_use(PROXY):
+                            log.info(f"{PROXY.split('@')[1].split(':')[0]} | current proxy")
+                            try:
+                                auto_reg(email, mnemonic, PROXY)
+                                time.sleep(timeout)
+                                print()
+                            except:
+                                time.sleep(timeout)
+                                continue
             else:
                 log.info(f"{email} | already registered")
                 log.info("go to the next account...")
@@ -79,10 +92,10 @@ def main():
             log.info("go to the next account..")
 
     elif software_method == 2:
-        twitter_index = 0  # Індекс останнього використаного Twitter-акаунту
+        twitter_index = 0
 
         for dot_accounts in success_reg_accounts:
-            _, dop_mnemonic, _, email, mm_mnemonic, _, step_progress = dot_accounts.split(":")
+            _, dop_mnemonic, _, email, mm_mnemonic, _, step_progress, proxy = dot_accounts.split(":")
             if is_account_registered_2(email):
                 if is_account_passed_testnet(email):
                     passed = 0
@@ -93,7 +106,7 @@ def main():
                             if twitter_not_use(twitter_login) and is_twitter_frozen(twitter_login):
                                 log.info(f"{twitter_login} | current twitter account")
                                 try:
-                                    run_testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_progress)
+                                    run_testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_progress, proxy)
                                     time.sleep(2)
                                     log.info("go to the next account")
                                     time.sleep(timeout//2)

@@ -18,7 +18,6 @@ import base64
 import json
 
 
-
 log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {line}:{function} | {message}")
 
 
@@ -53,7 +52,7 @@ def is_account_passed_testnet(email_address):
 def twitter_not_use(lodin_twitter):
     with open('passed_testnet.txt', 'r') as file:
         for line in file:
-            if lodin_twitter in line.split(':')[-1]:
+            if lodin_twitter in line.split(':')[-2]:
                 return False
     return True
 
@@ -111,7 +110,7 @@ def save_progress(email, number):
         parts = line.strip().split(':')
         if len(parts) > 3 and parts[3] == email:
             found = True
-            parts[-1] = str(number)  # Заміна останнього елемента на нове число
+            parts[-2] = str(number)
             line = ':'.join(parts) + '\n'
         updated_lines.append(line)
 
@@ -129,15 +128,19 @@ def update_step_progress(email):
     for line in lines:
         parts = line.strip().split(':')
         if len(parts) > 3 and parts[3] == email:
-            return int(parts[-1])
+            return int(parts[-2])
 
     log.error(f"{email} | not found")
     return None
 
 
 def copy_ref_code(driver, EMAIL):
+
+    # /html/body/div[3]/div/div/div/div[2]/p/h6/img
+    driver.find_element('xpath',
+                        '/html/body/div[3]/div/div/div/button').click()  # step 7 - done
     time.sleep(time_break)
-    log.info(f"{EMAIL} | click | step 7 - done | DOP")
+    log.info(f"{EMAIL} | click | done | DOP")
 
     driver.find_element('xpath',
                         '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()  # copy ref code
@@ -157,9 +160,9 @@ def copy_ref_code(driver, EMAIL):
 
 
 def main_step(driver, EMAIL, mm_mnemonic, dop_mnemonic):
+    global dop_password
 
     mm_mnemonic = mm_mnemonic.split()
-    global dop_password
     dop_password = generate_password()
     mm_password = generate_password()
 
@@ -656,15 +659,14 @@ def step7(driver, EMAIL):
     time.sleep(timeout*3)
     log.info(f"{EMAIL} | switch | to window DOP")
 
+    save_progress(EMAIL, 7)
+
     driver.find_element('xpath',
                         '/html/body/div[3]/div/div/div/div[2]/button[1]').click()  # step 7 - close
     time.sleep(time_break)
     log.info(f"{EMAIL} | click | close | DOP")
 
-    driver.find_element('xpath',
-                        '/html/body/div[3]/div/div/div/button').click()  # step 7 - done
-    time.sleep(time_break)
-    log.info(f"{EMAIL} | click | done | DOP")
+
 
 
 
@@ -722,16 +724,20 @@ def run_step(step, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, ques
                 print()
 
 
-def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_progress):
+def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_progress, proxy):
     step_progress = int(step_progress)
     question = False
 
+    proxy_auth, proxy = proxy.split('@')
     decoded_cookies = encrypto_cookies(cookies)
     cookies_dict = json.loads(decoded_cookies)
     ua = UserAgent()
     random_user_agent = ua.random
     chrome_options = Options()
+    chrome_options.add_argument("--start-minimized")
     chrome_options.add_argument(f'user-agent={random_user_agent}')
+    chrome_options.add_argument(f'--proxy-server=http://{proxy}')
+    chrome_options.add_argument(f'--proxy-auth={proxy_auth}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
     driver = webdriver.Chrome(options=chrome_options)
     driver.maximize_window()
@@ -792,7 +798,7 @@ def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_p
 
         if step_progress < 7:
             run_step(step7, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            time.sleep(time_break * 2)
+            time.sleep(timeout)
             step_progress = update_step_progress(EMAIL)
             print()
 
