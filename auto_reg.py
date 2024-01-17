@@ -17,7 +17,6 @@ from xpath import *
 from loguru import logger as log
 from selenium.webdriver.common.keys import Keys
 
-
 # ref = 'FDtPJDz'
 
 log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {line}:{function} | {message}")
@@ -33,8 +32,7 @@ def choose_random(file_name):
 
 
 def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_address, mnemonic_mm, password_mm, proxy):
-
-    file_path = 'success_reg_accounts.txt'
+    file_path = 'data/success_reg_accounts.txt'
     data_line = f"{secret_key_dop}:{seed_prase_dop}:{password_dop}:{email_address}:{mnemonic_mm}:{password_mm}:{proxy}:0\n"
 
     with open(file_path, 'a') as file:
@@ -43,8 +41,7 @@ def save_data_account(secret_key_dop, seed_prase_dop, password_dop, email_addres
 
 
 def save_data_ref_code(email, ref_code, count_referrals=0):
-
-    file_path = 'ref.txt'
+    file_path = 'data/ref.txt'
     data_line = f"{email}:{ref_code}:{count_referrals}\n"
 
     with open(file_path, 'a') as file:
@@ -53,7 +50,7 @@ def save_data_ref_code(email, ref_code, count_referrals=0):
 
 
 def is_account_registered_dop(email_address):
-    with open('success_reg_accounts.txt', 'r') as file:
+    with open('data/success_reg_accounts.txt', 'r') as file:
         for line in file:
             if email_address in line.split(':')[3]:
                 return False
@@ -66,8 +63,7 @@ def generate_password(length=8):
     return password
 
 
-def select_referral_code(filename="ref.txt"):
-
+def select_referral_code(filename="data/ref.txt"):
     with open(filename, 'r') as file:
         lines = file.readlines()
 
@@ -86,7 +82,8 @@ def select_referral_code(filename="ref.txt"):
     log.info(f"select | ref code {selected_referral} | random")
     return selected_referral
 
-def update_referral_data(selected_referral, filename='ref.txt'):
+
+def update_referral_data(selected_referral, filename='data/ref.txt'):
     with open(filename, 'r') as file:
         lines = file.readlines()
 
@@ -105,7 +102,7 @@ def update_referral_data(selected_referral, filename='ref.txt'):
 
 
 def proxy_not_use(proxy):
-    with open('success_reg_accounts.txt', 'r') as file:
+    with open('data/success_reg_accounts.txt', 'r') as file:
         for line in file:
             if proxy in line.split(':')[-2]:
                 return False
@@ -113,7 +110,6 @@ def proxy_not_use(proxy):
 
 
 def check_proxy(proxy):
-
     proxy_options = {
         "proxy": {
             "https": proxy
@@ -128,7 +124,6 @@ def check_proxy(proxy):
 
     proxy = proxy.split("@")[1].split(":")[0]
 
-    # Перевірте статус з'єднання
     if "Визначити свою IP адресу | 2IP.ua" in test_driver.title:
         log.info(f"{proxy} | proxy is working")
         test_driver.quit()
@@ -139,21 +134,13 @@ def check_proxy(proxy):
         return False
 
 
-
-
-
-def auto_reg(EMAIL, MNEMONIC, proxy):
-
+def auto_reg_and_step8(EMAIL, MNEMONIC, PROXY):
     ua = UserAgent()
-
-    # Вибір випадкових позицій
     random_user_agent = ua.random
 
     MNEMONIC = MNEMONIC.split()
     dop_password = generate_password()
     mm_password = generate_password()
-
-
 
     # if not check_proxy(proxy):
     #     return None
@@ -169,15 +156,13 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument(f'user-agent={random_user_agent}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
-    driver = webdriver.Chrome(options=chrome_options) # seleniumwire_options=proxy_options
-
-
+    driver = webdriver.Chrome(options=chrome_options)  # seleniumwire_options=proxy_options
 
     driver.maximize_window()
 
     time.sleep(time_break)
-    proxy = proxy.split("@")[1].split(":")[0]
-    ref = select_referral_code('ref.txt') #"FDtPJDz"
+    proxy = PROXY.split("@")[1].split(":")[0]
+    ref = select_referral_code('data/ref.txt')  # "FDtPJDz"
     driver.get(url_main_dop + ref)
 
     driver.implicitly_wait(10)
@@ -188,17 +173,16 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
     driver.refresh()
 
     try:
-
-        driver.find_element('xpath',
-                            '/html/body/div[1]/div/div[2]/div/div/div/ul/li[1]/div/input').click()  # agree to TOS
+        # METAMASK
+        driver.find_element('xpath', agree_to_tos).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | agree to TOS | MM")
 
-        driver.find_element('xpath', '/html/body/div[1]/div/div[2]/div/div/div/ul/li[3]/button').click()  # import
+        driver.find_element('xpath', import_mm).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click  | import | MM")
 
-        driver.find_element('xpath', '/html/body/div[1]/div/div[2]/div/div/div/div/button[2]').click()  # no thanks
+        driver.find_element('xpath', no_thanks).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | no thanks | MM")
 
@@ -211,102 +195,84 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
         log.info(f"{EMAIL} | input | mnemonic | MM")
         time.sleep(time_break)
 
-        driver.find_element('xpath', '/html/body/div[1]/div/div[2]/div/div/div/div[4]/div/button').click()  # confirm
+        driver.find_element('xpath', confirm_mm).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | mnemonic confirm | MM")
 
-        driver.find_element('xpath',
-                            '/html/body/div[1]/div/div[2]/div/div/div/div[2]/form/div[1]/label/input').send_keys(
-            mm_password)  # enter password
-        driver.find_element('xpath',
-                            '/html/body/div[1]/div/div[2]/div/div/div/div[2]/form/div[2]/label/input').send_keys(
-            mm_password)  # enter password twice
+        driver.find_element('xpath', input_password_mm).send_keys(mm_password)
+        driver.find_element('xpath', input_password_twice_mm).send_keys(mm_password)
         time.sleep(time_break)
-        log.info(f"{EMAIL} | input | 2 password | MM")
+        log.info(f"{EMAIL} | input | password 2 | MM")
 
-        driver.find_element('xpath',
-                            '/html/body/div[1]/div/div[2]/div/div/div/div[2]/form/div[3]/label/input').click()  # I understand
+        driver.find_element('xpath', i_understand_mm).click()
         time.sleep(time_break // 2)
         log.info(f"{EMAIL} | click | I understand | MM")
 
         driver.find_element('xpath',
-                            '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/button').click()  # import my wallet
+                            import_my_wallet).click()
         time.sleep(time_break * 2)
         log.info(f"{EMAIL} | click | import my wallet | MM)")
 
-        driver.find_element('xpath', '/html/body/div[1]/div/div[2]/div/div/div/div[2]/button').click()  # got it
+        driver.find_element('xpath', got_it).click()  # got it
         time.sleep(time_break // 2)
         log.info(f"{EMAIL} | click | got it MM")
 
-        driver.find_element('xpath', '/html/body/div[1]/div/div[2]/div/div/div/div[2]/button').click()  # next page
+        driver.find_element('xpath', next_page).click()
         time.sleep(time_break // 2)
         log.info(f"{EMAIL} | click | next page | MM")
 
-        driver.find_element('xpath', '/html/body/div[1]/div/div[2]/div/div/div/div[2]/button').click()  # done
+        driver.find_element('xpath', done_mm).click()  # done
         time.sleep(time_break // 2)
         log.info(f"{EMAIL} | click | done | MM")
 
-        driver.find_element('xpath', '/html/body/div[2]/div/div/section/div[1]/div/button/span').click()  # close
+        driver.find_element('xpath', close_mm).click()  # close
         time.sleep(time_break // 2)
         log.info(f"{EMAIL} | click | close| MM")
 
-        # --------------------------------------------------------------------------------------------------------------------- switch to window DOP
-
+        # DOP
         driver.switch_to.window(driver.window_handles[0])
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
-
-        driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div[2]/form/div[1]/div/label').click()  # I understand
-
+        driver.find_element('xpath', i_understand_dop).click()
 
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | I understand | DOP)")
 
         driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div[2]/form/div[2]/input').send_keys(
-            EMAIL)  # enter email
+                            input_email).send_keys(EMAIL)
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | email | DOP")
 
-        driver.find_element('xpath', '//*[@id="root"]/section[2]/div/div[2]/form/button').click() # continue
+        driver.find_element('xpath', continue_dop).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | continue | DOP")
 
-
-        driver.find_element('xpath', '//*[@id="root"]/section[2]/div/div[2]/div[1]/a/button').click() # create new wallet
+        driver.find_element('xpath', create_new_wallet).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | create new wallet | DOP")
 
-        driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/form/div/div[1]/input').send_keys(
-            dop_password)  # enter password
+        driver.find_element('xpath', input_password_dop).send_keys(dop_password)
         time.sleep(time_break)
 
-        driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/form/div/div[2]/input').send_keys(
-            dop_password)  # enter password twice
+        driver.find_element('xpath',input_password_twice_dop).send_keys(dop_password)
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | 2 password | DOP")
 
-        driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/form/div/button').click()  # I confirm
-        time.sleep(time_break*2)
+        driver.find_element('xpath', confirm_dop).click()
+        time.sleep(time_break * 2)
         log.info(f"{EMAIL} | click | I confirm | DOP")
 
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(time_break * 2)
         log.info(f"{EMAIL} | scroll | DOP")
 
-        driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/div[2]/div[3]/button/p').click()  # copy phrase
+        driver.find_element('xpath', copy_pharase).click()
         driver.implicitly_wait(time_break)
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | copy phrase | DOP")
 
-        driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/div[2]/div[3]/a/button').click() # verify
+        driver.find_element('xpath', verify).click()
         driver.implicitly_wait(time_break)
         log.info(f"{EMAIL} | click | verify | DOP")
         time.sleep(time_break)
@@ -317,87 +283,77 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
         log.info(f"{EMAIL} | click | verify phase 12 words | DOP")
         for word in seed_phrase:
             WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, f"//button[contains(., '{word}')]"))).click() # check phase
+                EC.element_to_be_clickable((By.XPATH, f"//button[contains(., '{word}')]"))).click()
             time.sleep(time_break)
 
         driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/div[2]/div[2]/button').click()  # verify confirm
+                            verify_confirm).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | verify confirm | DOP")
 
-        driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/div[3]/button').click()  # verify continue
+        driver.find_element('xpath', verify_continue).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | verify continue | DOP")
 
         driver.find_element('xpath',
-                            '/html/body/div[3]/div/div/div/h6/p/img').click()  # copy secret key
+                            copy_secret_key).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | copy secret key | DOP")
 
         secret_key = pyperclip.paste()
 
-        driver.find_element('xpath',
-                            '/html/body/div[3]/div/div/div/div[2]/button').click()  # done
+        driver.find_element('xpath', done_dop).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | done | DOP")
 
         proxy = proxy.split(":")[0]
-        save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password, proxy)
+        save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password,
+                          proxy)
 
         time.sleep(time_break)
 
-
         driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/form/div/div/input').send_keys(
-            dop_password)  # input password login
+                            unlock_wallet).send_keys(dop_password)
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | password | DOP")
 
         driver.find_element('xpath',
-                            '//*[@id="root"]/section[2]/div/div/form/div/button').click()  # key confirm
+                            input_password_dop_unlock).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | password confirm | DOP")
 
-        driver.find_element('xpath',
-                            '/html/body/div[5]/div/div/div[2]/button').click()  # start
+        driver.find_element('xpath',start).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | start testnet | DOP")
 
-        driver.find_element('xpath',
-                            '/html/body/div[3]/div/div/div/div[2]/button').click()  # connect MM
+        driver.find_element('xpath', connect_mm).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | connect MM | DOP")
 
-        log.info(f"counter of open windows | {len(driver.window_handles)}")
-
-        # ----------------------------------------------------------------------------------------------------------------- switch to window MM
-
+        # METAMASK
         driver.switch_to.window(driver.window_handles[-1])
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window MM")
 
         driver.find_element('xpath',
-                            '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]').click()  # confirm in MM
+                            confirm_in_mm).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | confirm | MM")
 
         driver.find_element('xpath',
-                            '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]').click()  # connect final MM
+                            connect_final).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | connect final | MM")
 
         driver.find_element('xpath',
-                            '//*[@id="app-content"]/div/div/div/div[2]/div/button[2]').click()  # switch network on cepolia
+                            switch_network_on_cepolia).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | switch network on cepolia | MM")
 
-        # --------------------------------------------------------------------------------------------------------------------- switch to window DOP
-
+        # DOP
         driver.switch_to.window(driver.window_handles[0])
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
-
 
         update_referral_data(selected_referral=ref)
 
@@ -412,5 +368,3 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
         log.error(f'{EMAIL}| Failed Registered | {str(e)}')
     finally:
         driver.quit()
-
-

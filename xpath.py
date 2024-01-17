@@ -25,7 +25,6 @@ input_password_twice_dop = '//*[@id="root"]/section[2]/div/div/form/div/div[2]/i
 confirm_dop = '//*[@id="root"]/section[2]/div/div/form/div/button'
 copy_pharase = '//*[@id="root"]/section[2]/div/div/div[2]/div[3]/button/p'
 verify = '//*[@id="root"]/section[2]/div/div/div[2]/div[3]/a/button'
-check_phase = f"//button[contains(., '{word}')]"
 verify_confirm = '//*[@id="root"]/section[2]/div/div/div[2]/div[2]/button'
 verify_continue = '//*[@id="root"]/section[2]/div/div/div[3]/button'
 copy_secret_key = '/html/body/div[3]/div/div/div/h6/p/img'
@@ -40,3 +39,8 @@ connect_mm = '/html/body/div[3]/div/div/div/div[2]/button'
 confirm_in_mm = '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]'
 connect_final = '//*[@id="app-content"]/div/div/div/div[3]/div[2]/footer/button[2]'
 switch_network_on_cepolia = '//*[@id="app-content"]/div/div/div/div[2]/div/button[2]'
+
+
+
+# testnet.py
+

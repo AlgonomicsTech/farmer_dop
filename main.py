@@ -4,6 +4,7 @@ from os.path import exists
 from auto_reg import *
 from config import *
 from testnet import *
+from creator_wallets import create_wallet
 from loguru import logger as log
 
 
@@ -11,38 +12,38 @@ log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {li
 
 def main():
 
-    if exists(path='accounts.txt'):
-        with open(file='accounts.txt', mode='r', encoding='utf-8-sig') as file:
+    if exists(path='data/accounts.txt'):
+        with open(file='data/accounts.txt', mode='r', encoding='utf-8-sig') as file:
             accounts_list = [row.strip() for row in file]
     else:
         accounts_list = []
 
-    if exists(path='passed_testnet.txt'):
-        with open(file='passed_testnet.txt', mode='r', encoding='utf-8-sig') as file:
+    if exists(path='data/passed_testnet.txt'):
+        with open(file='data/passed_testnet.txt', mode='r', encoding='utf-8-sig') as file:
             accounts_list_passed_testnet = [row.strip() for row in file]
     else:
         accounts_list_passed_testnet = []
 
-    if exists(path='twitter_data.txt'):
-        with open(file='twitter_data.txt', mode='r', encoding='utf-8-sig') as file:
+    if exists(path='data/twitter_data.txt'):
+        with open(file='data/twitter_data.txt', mode='r', encoding='utf-8-sig') as file:
             accounts_twitter_list = [row.strip() for row in file]
     else:
         accounts_twitter_list = []
 
-    if exists(path='success_reg_accounts.txt'):
-        with open(file='success_reg_accounts.txt', mode='r', encoding='utf-8-sig') as file:
+    if exists(path='data/success_reg_accounts.txt'):
+        with open(file='data/success_reg_accounts.txt', mode='r', encoding='utf-8-sig') as file:
             success_reg_accounts = [row.strip() for row in file]
     else:
         success_reg_accounts = []
 
-    if exists(path='ref.txt'):
-        with open(file='ref.txt', mode='r', encoding='utf-8-sig') as file:
+    if exists(path='data/ref.txt'):
+        with open(file='data/ref.txt', mode='r', encoding='utf-8-sig') as file:
             ref_code_list = [row.strip() for row in file]
     else:
         ref_code_list = []
 
-    if exists(path='proxy.txt'):
-        with open(file='proxy.txt', mode='r', encoding='utf-8-sig') as file:
+    if exists(path='data/proxy.txt'):
+        with open(file='data/proxy.txt', mode='r', encoding='utf-8-sig') as file:
             proxy_list = [row.strip() for row in file]
     else:
         proxy_list = []
@@ -60,6 +61,7 @@ def main():
 
     software_method = int(input('\n1. Account registration\n'
                                 '2. Passing the testnet\n'
+                                '3. Create the wallets\n'
                                 'Make your choice:\n'))
     print()
 
@@ -76,12 +78,12 @@ def main():
                         ip = PROXY.split("@")[1].split(":")[0]
                         if proxy_not_use(ip):
                             try:
-                                auto_reg(email, mnemonic, PROXY)
+                                auto_reg_and_step8(email, mnemonic, PROXY)
                                 time.sleep(2)
                                 log.info("go to the next account")
                                 time.sleep(timeout // 2)
                                 print()
-                                use_proxy2 = 1
+                                use_proxy = 1
                                 proxy_index = i + 1
                                 break
                             except:
@@ -152,8 +154,16 @@ def main():
                 time.sleep(2)
                 continue
 
+    elif software_method == 3:
+        try:
+            amount_wallets = int(input('\nHow many wallets do you need to make?\n'))
+            for _ in range(amount_wallets):
+                create_wallet()
+        except Exception as err:
+            log.error(f"Try first and enter the whole number | {err}")
+
     else:
-        log.error("Unknown method, choose 1 or 2!")
+        log.error("Unknown method, choose 1, 2 or 3!")
 
     time.sleep(time_break)
     print()
