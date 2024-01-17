@@ -4,10 +4,9 @@ import time
 import zipfile
 import os
 from datetime import datetime
-
+from seleniumwire import webdriver
 import pyperclip
 from fake_useragent import UserAgent
-from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
@@ -56,7 +55,7 @@ def save_data_ref_code(email, ref_code, count_referrals=0):
 def is_account_registered_dop(email_address):
     with open('success_reg_accounts.txt', 'r') as file:
         for line in file:
-            if email_address in line.split(':'):
+            if email_address in line.split(':')[3]:
                 return False
     return True
 
@@ -106,11 +105,41 @@ def update_referral_data(selected_referral, filename='ref.txt'):
 
 
 def proxy_not_use(proxy):
-    with open('passed_testnet.txt', 'r') as file:
+    with open('success_reg_accounts.txt', 'r') as file:
         for line in file:
-            if proxy in line.split(':')[-1]:
+            if proxy in line.split(':')[-2]:
                 return False
     return True
+
+
+def check_proxy(proxy):
+
+    proxy_options = {
+        "proxy": {
+            "https": proxy
+        }
+    }
+
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    test_driver = webdriver.Chrome(options=chrome_options,
+                                   seleniumwire_options=proxy_options)
+    test_driver.get("https://2ip.ua/ua/")
+
+    proxy = proxy.split("@")[1].split(":")[0]
+
+    # Перевірте статус з'єднання
+    if "Визначити свою IP адресу | 2IP.ua" in test_driver.title:
+        log.info(f"{proxy} | proxy is working")
+        test_driver.quit()
+        return True
+    else:
+        log.error(f"{proxy} | proxy is NOT working")
+        test_driver.quit()
+        return False
+
+
+
 
 
 def auto_reg(EMAIL, MNEMONIC, proxy):
@@ -124,26 +153,39 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
     dop_password = generate_password()
     mm_password = generate_password()
 
-    proxy_auth, proxy = proxy.split('@')
+
+
+    # if not check_proxy(proxy):
+    #     return None
+
+    # time.sleep(time_break*2)
+    # proxy_options = {
+    #     "proxy": {
+    #         "https": proxy
+    #     }
+    # }
 
     chrome_options = Options()
-    chrome_options.add_argument("--start-minimized")
+    chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument(f'user-agent={random_user_agent}')
-    chrome_options.add_argument(f'--proxy-server=http://{proxy}')
-    chrome_options.add_argument(f'--proxy-auth={proxy_auth}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options) # seleniumwire_options=proxy_options
+
+
+
     driver.maximize_window()
 
     time.sleep(time_break)
-    ref = "FDtPJDz"         # select_referral_code('ref.txt')
+    proxy = proxy.split("@")[1].split(":")[0]
+    ref = select_referral_code('ref.txt') #"FDtPJDz"
     driver.get(url_main_dop + ref)
 
     driver.implicitly_wait(10)
     time.sleep(time_break)
 
     driver.switch_to.window(driver.window_handles[1])
-    time.sleep(time_break)
+    time.sleep(timeout)
+    driver.refresh()
 
     try:
 
@@ -189,7 +231,7 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
 
         driver.find_element('xpath',
                             '//*[@id="app-content"]/div/div[2]/div/div/div/div[2]/form/button').click()  # import my wallet
-        time.sleep(time_break // 2)
+        time.sleep(time_break * 2)
         log.info(f"{EMAIL} | click | import my wallet | MM)")
 
         driver.find_element('xpath', '/html/body/div[1]/div/div[2]/div/div/div/div[2]/button').click()  # got it
@@ -224,7 +266,7 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
 
         driver.find_element('xpath',
                             '//*[@id="root"]/section[2]/div/div[2]/form/div[2]/input').send_keys(
-            EMAIL)  # enter email twice
+            EMAIL)  # enter email
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | email | DOP")
 
@@ -302,6 +344,7 @@ def auto_reg(EMAIL, MNEMONIC, proxy):
 
         proxy = proxy.split(":")[0]
         save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password, proxy)
+
         time.sleep(time_break)
 
 

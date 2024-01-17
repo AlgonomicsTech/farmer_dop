@@ -73,12 +73,17 @@ def main():
                 while use_proxy != 1:
                     for i in range(proxy_index, len(proxy_list)):
                         PROXY = proxy_list[i]
-                        if proxy_not_use(PROXY):
-                            log.info(f"{PROXY.split('@')[1].split(':')[0]} | current proxy")
+                        ip = PROXY.split("@")[1].split(":")[0]
+                        if proxy_not_use(ip):
                             try:
                                 auto_reg(email, mnemonic, PROXY)
-                                time.sleep(timeout)
+                                time.sleep(2)
+                                log.info("go to the next account")
+                                time.sleep(timeout // 2)
                                 print()
+                                use_proxy2 = 1
+                                proxy_index = i + 1
+                                break
                             except:
                                 time.sleep(timeout)
                                 continue
@@ -95,7 +100,10 @@ def main():
         twitter_index = 0
 
         for dot_accounts in success_reg_accounts:
-            _, dop_mnemonic, _, email, mm_mnemonic, _, step_progress, proxy = dot_accounts.split(":")
+            _, dop_mnemonic, _, email, mm_mnemonic, _, ip, step_progress = dot_accounts.split(":")
+
+            proxy = f"https://romakotenko17:INAt774aDH@{ip}:50100"
+
             if is_account_registered_2(email):
                 if is_account_passed_testnet(email):
                     passed = 0
@@ -105,6 +113,7 @@ def main():
                             twitter_login, _, _, _, _, _, cookies = twitter_account.split(":")
                             if twitter_not_use(twitter_login) and is_twitter_frozen(twitter_login):
                                 log.info(f"{twitter_login} | current twitter account")
+
                                 try:
                                     run_testnet(email, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_progress, proxy)
                                     time.sleep(2)
@@ -142,8 +151,6 @@ def main():
                 log.info("go to the next account")
                 time.sleep(2)
                 continue
-
-
 
     else:
         log.error("Unknown method, choose 1 or 2!")

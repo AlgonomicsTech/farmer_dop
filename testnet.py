@@ -1,17 +1,13 @@
 import random
 import string
 import time
-
+from seleniumwire import webdriver
 import pyperclip
 from fake_useragent import UserAgent
-from selenium import webdriver
 from selenium.common import NoSuchElementException, WebDriverException
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
-from selenium.webdriver.common.keys import Keys
 from config import *
-from solver_captcha import solve_recaptcha
-from otp import get_otp
 from loguru import logger as log
 from selenium.webdriver.common.keys import Keys
 import base64
@@ -24,6 +20,7 @@ log.add("logger.log", format="{time:YYYY-MM-DD | HH:mm:ss.SSS} | {level} \t| {li
 def encrypto_cookies(cookies):
     decoded_bytes = base64.b64decode(cookies)
     return decoded_bytes.decode('utf-8')
+
 
 def choose_random(file_name):
     try:
@@ -41,6 +38,7 @@ def is_account_registered_2(email_address):
                 return True
     return False
 
+
 def is_account_passed_testnet(email_address):
     with open('passed_testnet.txt', 'r') as file:
         for line in file:
@@ -52,7 +50,7 @@ def is_account_passed_testnet(email_address):
 def twitter_not_use(lodin_twitter):
     with open('passed_testnet.txt', 'r') as file:
         for line in file:
-            if lodin_twitter in line.split(':')[-2]:
+            if lodin_twitter in line.split(':')[-1]:
                 return False
     return True
 
@@ -128,7 +126,7 @@ def update_step_progress(email):
     for line in lines:
         parts = line.strip().split(':')
         if len(parts) > 3 and parts[3] == email:
-            return int(parts[-2])
+            return int(parts[-1])
 
     log.error(f"{email} | not found")
     return None
@@ -137,19 +135,19 @@ def update_step_progress(email):
 def copy_ref_code(driver, EMAIL):
 
     # /html/body/div[3]/div/div/div/div[2]/p/h6/img
-    driver.find_element('xpath',
-                        '/html/body/div[3]/div/div/div/button').click()  # step 7 - done
-    time.sleep(time_break)
-    log.info(f"{EMAIL} | click | done | DOP")
+    # driver.find_element('xpath',
+    #                     '/html/body/div[3]/div/div/div/button').click()  # step 7 - done
+    # time.sleep(time_break)
+    # log.info(f"{EMAIL} | click | done | DOP")
+    #
+    # driver.find_element('xpath',
+    #                     '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()  # copy ref code
+    #
+    # time.sleep(time_break)
+    # log.info(f"{EMAIL} | click | copy ref code | DOT")
 
-    driver.find_element('xpath',
-                        '//*[@id="left-tabs-example-tabpane-earn"]/section/div[3]/div[8]/div[2]/div[1]/div[1]/div/p/h6/img').click()  # copy ref code
-
-    time.sleep(time_break)
-    log.info(f"{EMAIL} | click | copy ref code | DOT")
-
-    driver.implicitly_wait(time_break)
-    time.sleep(time_break)
+    # driver.implicitly_wait(time_break)
+    # time.sleep(time_break)
 
     ref_code = pyperclip.paste().split('=')[1]
     log.info(f'ref code | {ref_code}')
@@ -728,18 +726,23 @@ def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_p
     step_progress = int(step_progress)
     question = False
 
-    proxy_auth, proxy = proxy.split('@')
+    # ua = UserAgent()
+    # random_user_agent = ua.random
+    #
+    # proxy_options = {
+    #     "proxy": {
+    #         "https": proxy
+    #     }
+    # }
+
     decoded_cookies = encrypto_cookies(cookies)
     cookies_dict = json.loads(decoded_cookies)
-    ua = UserAgent()
-    random_user_agent = ua.random
+
+
     chrome_options = Options()
-    chrome_options.add_argument("--start-minimized")
-    chrome_options.add_argument(f'user-agent={random_user_agent}')
-    chrome_options.add_argument(f'--proxy-server=http://{proxy}')
-    chrome_options.add_argument(f'--proxy-auth={proxy_auth}')
+    #chrome_options.add_argument(f'user-agent={random_user_agent}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
-    driver = webdriver.Chrome(options=chrome_options)
+    driver = webdriver.Chrome(options=chrome_options) # seleniumwire_options=proxy_options
     driver.maximize_window()
     driver.get("https://twitter.com")
 
@@ -754,53 +757,61 @@ def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_p
     driver.implicitly_wait(10)
     time.sleep(time_break)
     driver.switch_to.window(driver.window_handles[1])
+
     time.sleep(time_break)
+    driver.refresh()
 
     try:
         main_step(driver, EMAIL, mm_mnemonic, dop_mnemonic)
-        log.info(f'{EMAIL} | current start step | {step_progress}')
+        # log.info(f'{EMAIL} | current start step | {step_progress}')
+        #
+        # if step_progress < 1:
+        #     run_step(step1, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+        #     question = True
+        #     step_progress = update_step_progress(EMAIL)
+        #     print()
+        #
+        # if step_progress < 2:
+        #     run_step(step2, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+        #     time.sleep(time_break * 2)
+        #     step_progress = update_step_progress(EMAIL)
+        #     print()
+        #
+        # if step_progress < 3:
+        #     run_step(step3, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+        #     time.sleep(time_break * 2)
+        #     step_progress = update_step_progress(EMAIL)
+        #     print()
+        #
+        # if step_progress < 4:
+        #     run_step(step4, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+        #     time.sleep(time_break * 2)
+        #     step_progress = update_step_progress(EMAIL)
+        #     print()
+        #
+        # if step_progress < 5:
+        #     run_step(step5, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+        #     time.sleep(time_break * 2)
+        #     step_progress = update_step_progress(EMAIL)
+        #     print()
+        #
+        # if step_progress < 6:
+        #     run_step(step6, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+        #     time.sleep(time_break * 2)
+        #     step_progress = update_step_progress(EMAIL)
+        #     print()
+        #
+        # if step_progress < 7:
+        #     run_step(step7, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+        #     time.sleep(timeout)
+        #     step_progress = update_step_progress(EMAIL)
+        #     print()
 
-        if step_progress < 1:
-            run_step(step1, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            question = True
-            step_progress = update_step_progress(EMAIL)
-            print()
+        log.debug("press enter to save data and continue...")
+        save_progress(EMAIL, 7)
+        step_progress = 7
+        input()
 
-        if step_progress < 2:
-            run_step(step2, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            time.sleep(time_break * 2)
-            step_progress = update_step_progress(EMAIL)
-            print()
-
-        if step_progress < 3:
-            run_step(step3, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            time.sleep(time_break * 2)
-            step_progress = update_step_progress(EMAIL)
-            print()
-
-        if step_progress < 4:
-            run_step(step4, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            time.sleep(time_break * 2)
-            step_progress = update_step_progress(EMAIL)
-            print()
-
-        if step_progress < 5:
-            run_step(step5, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            time.sleep(time_break * 2)
-            step_progress = update_step_progress(EMAIL)
-            print()
-
-        if step_progress < 6:
-            run_step(step6, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            time.sleep(time_break * 2)
-            step_progress = update_step_progress(EMAIL)
-            print()
-
-        if step_progress < 7:
-            run_step(step7, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-            time.sleep(timeout)
-            step_progress = update_step_progress(EMAIL)
-            print()
 
         if step_progress == 7:
             copy_ref_code(driver, EMAIL)
@@ -809,5 +820,12 @@ def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_p
 
     except Exception as err:
         log.error(f"run testnet | {err}")
+        log.debug("press enter to save data and continue...")
+        save_progress(EMAIL, 7)
+        step_progress = 7
         input()
-        finish(driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+
+        if step_progress == 7:
+            copy_ref_code(driver, EMAIL)
+            save_data_passed_testnet(EMAIL, dop_mnemonic, mm_mnemonic, twitter_login)
+            log.success(f'{EMAIL} | testnet passed successfully')
