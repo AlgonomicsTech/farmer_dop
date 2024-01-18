@@ -5,29 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="6bf64897-cd13-4980-9ea3-b5e59b22923f" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/creator_wallets.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/data/wallets.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/farmer_dop.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/farmer_dop.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/accounts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/accounts.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/auto_reg.py" beforeDir="false" afterPath="$PROJECT_DIR$/auto_reg.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/frozen_twitter_accounts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/frozen_twitter_accounts.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/ref.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/ref.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/data/success_reg_accounts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/success_reg_accounts.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/otp.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/passed_testnet.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/passed_testnet.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/proxy.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/proxy.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ref.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/ref.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/solver_captcha.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/success_reg_accounts.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/success_reg_accounts.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/testnet.py" beforeDir="false" afterPath="$PROJECT_DIR$/testnet.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/twitter_data.txt" beforeDir="false" afterPath="$PROJECT_DIR$/data/twitter_data.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/xpath.py" beforeDir="false" afterPath="$PROJECT_DIR$/xpath.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,29 +42,29 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ASKED_ADD_EXTERNAL_FILES": "true",
-    "ASKED_MARK_IGNORED_FILES_AS_EXCLUDED": "true",
-    "Python tests.Python tests in passing_testnet.py.executor": "Run",
-    "Python.auto_reg.executor": "Run",
-    "Python.chrome.executor": "Run",
-    "Python.config.executor": "Run",
-    "Python.dop.executor": "Run",
-    "Python.main.executor": "Run",
-    "Python.main_dop.executor": "Run",
-    "Python.otp.executor": "Run",
-    "Python.passing_testnet.executor": "Run",
-    "Python.test.executor": "Run",
-    "Python.testnet.executor": "Run",
-    "Python.twitter.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master",
-    "ignore.virus.scanning.warn.message": "true",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
+    &quot;ASKED_MARK_IGNORED_FILES_AS_EXCLUDED&quot;: &quot;true&quot;,
+    &quot;Python tests.Python tests in passing_testnet.py.executor&quot;: &quot;Run&quot;,
+    &quot;Python.auto_reg.executor&quot;: &quot;Run&quot;,
+    &quot;Python.chrome.executor&quot;: &quot;Run&quot;,
+    &quot;Python.config.executor&quot;: &quot;Run&quot;,
+    &quot;Python.dop.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main.executor&quot;: &quot;Run&quot;,
+    &quot;Python.main_dop.executor&quot;: &quot;Run&quot;,
+    &quot;Python.otp.executor&quot;: &quot;Run&quot;,
+    &quot;Python.passing_testnet.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testnet.executor&quot;: &quot;Run&quot;,
+    &quot;Python.twitter.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\romak\PycharmProjects\farmer_dop\data" />
@@ -191,7 +175,15 @@
       <option name="project" value="LOCAL" />
       <updated>1705478030840</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="commit 2.0.1">
+      <option name="closed" value="true" />
+      <created>1705496238066</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1705496238066</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -205,6 +197,7 @@
     <MESSAGE value=" step by step 2" />
     <MESSAGE value="add proxy" />
     <MESSAGE value="commit 2.0" />
-    <option name="LAST_COMMIT_MESSAGE" value="commit 2.0" />
+    <MESSAGE value="commit 2.0.1" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit 2.0.1" />
   </component>
 </project>

@@ -67,7 +67,6 @@ def main():
 
     if software_method == 1:
         proxy_index = 0
-
         for account in accounts_list:
             email, mnemonic = account.split(':')
             if is_account_registered_dop(email):
@@ -89,6 +88,12 @@ def main():
                             except:
                                 time.sleep(timeout)
                                 continue
+                        else:
+                            log.info(f"{ip} already used in DOP ")
+                            log.info("go to the next ip")
+                            print()
+                            time.sleep(1)
+                            continue
             else:
                 log.info(f"{email} | already registered")
                 log.info("go to the next account...")

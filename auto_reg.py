@@ -105,8 +105,8 @@ def proxy_not_use(proxy):
     with open('data/success_reg_accounts.txt', 'r') as file:
         for line in file:
             if proxy in line.split(':')[-2]:
-                return False
-    return True
+                return True
+    return False     ############################################
 
 
 def check_proxy(proxy):
@@ -162,7 +162,7 @@ def auto_reg_and_step8(EMAIL, MNEMONIC, PROXY):
 
     time.sleep(time_break)
     proxy = PROXY.split("@")[1].split(":")[0]
-    ref = select_referral_code('data/ref.txt')  # "FDtPJDz"
+    ref = "FDtPJDz"  # select_referral_code('data/ref.txt')
     driver.get(url_main_dop + ref)
 
     driver.implicitly_wait(10)
@@ -306,23 +306,19 @@ def auto_reg_and_step8(EMAIL, MNEMONIC, PROXY):
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | done | DOP")
 
-        proxy = proxy.split(":")[0]
-        save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password,
-                          proxy)
-
         time.sleep(time_break)
 
         driver.find_element('xpath',
-                            unlock_wallet).send_keys(dop_password)
+                            input_password_dop_unlock).send_keys(dop_password)
         time.sleep(time_break)
         log.info(f"{EMAIL} | input | password | DOP")
 
         driver.find_element('xpath',
-                            input_password_dop_unlock).click()
+                            unlock_wallet).click()
         time.sleep(time_break)
-        log.info(f"{EMAIL} | click | password confirm | DOP")
+        log.info(f"{EMAIL} | click | unlock wallet | DOP")
 
-        driver.find_element('xpath',start).click()
+        driver.find_element('xpath', start).click()
         time.sleep(time_break)
         log.info(f"{EMAIL} | click | start testnet | DOP")
 
@@ -355,6 +351,10 @@ def auto_reg_and_step8(EMAIL, MNEMONIC, PROXY):
         time.sleep(time_break)
         log.info(f"{EMAIL} | switch | to window DOP")
 
+        proxy = proxy.split(":")[0]
+        save_data_account(secret_key, ' '.join(seed_phrase), dop_password, EMAIL, ' '.join(MNEMONIC), mm_password,
+                          proxy)
+
         update_referral_data(selected_referral=ref)
 
         log.success('Created account in DOP successfully!')
@@ -368,3 +368,5 @@ def auto_reg_and_step8(EMAIL, MNEMONIC, PROXY):
         log.error(f'{EMAIL}| Failed Registered | {str(e)}')
     finally:
         driver.quit()
+
+
