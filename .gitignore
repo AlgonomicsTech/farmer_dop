@@ -5,5 +5,10 @@ __pycache__/
 .DS_Store
 Thumbs.db
 .env
-data/
+data/accounts.txt
+data/twitter_data.txt
+data/proxy.txt
+data/ref.txt
+data/success_reg_accounts.txt
+data/passed_testnet.txt
 logger.log
