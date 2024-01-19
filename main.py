@@ -118,7 +118,7 @@ def main():
                         for i in range(twitter_index, len(accounts_twitter_list)):
                             twitter_account = accounts_twitter_list[i]
                             twitter_login, _, _, _, _, _, cookies = twitter_account.split(":")
-                            if twitter_not_use(twitter_login) and is_twitter_frozen(twitter_login):
+                            if twitter_not_use(twitter_login):
                                 log.info(f"{twitter_login} | current twitter account")
 
                                 try:

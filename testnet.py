@@ -763,54 +763,56 @@ def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_p
 
     try:
         main_step(driver, EMAIL, mm_mnemonic, dop_mnemonic)
-        # log.info(f'{EMAIL} | current start step | {step_progress}')
-        #
-        # if step_progress < 1:
-        #     run_step(step1, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-        #     question = True
-        #     step_progress = update_step_progress(EMAIL)
-        #     print()
-        #
-        # if step_progress < 2:
-        #     run_step(step2, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-        #     time.sleep(time_break * 2)
-        #     step_progress = update_step_progress(EMAIL)
-        #     print()
-        #
-        # if step_progress < 3:
-        #     run_step(step3, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-        #     time.sleep(time_break * 2)
-        #     step_progress = update_step_progress(EMAIL)
-        #     print()
-        #
-        # if step_progress < 4:
-        #     run_step(step4, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-        #     time.sleep(time_break * 2)
-        #     step_progress = update_step_progress(EMAIL)
-        #     print()
-        #
-        # if step_progress < 5:
-        #     run_step(step5, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-        #     time.sleep(time_break * 2)
-        #     step_progress = update_step_progress(EMAIL)
-        #     print()
-        #
-        # if step_progress < 6:
-        #     run_step(step6, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-        #     time.sleep(time_break * 2)
-        #     step_progress = update_step_progress(EMAIL)
-        #     print()
-        #
-        # if step_progress < 7:
-        #     run_step(step7, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
-        #     time.sleep(timeout)
-        #     step_progress = update_step_progress(EMAIL)
-        #     print()
+        log.info(f'{EMAIL} | current start step | {step_progress}')
 
-        log.debug("press enter to save data and continue...")
+        if step_progress < 1:
+            run_step(step1, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            question = True
+            step_progress = update_step_progress(EMAIL)
+            log.debug("press enter to save data and continue...")
+            input()
+            print()
+
+        if step_progress < 2:
+            run_step(step2, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress < 3:
+            run_step(step3, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress < 4:
+            run_step(step4, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress < 5:
+            run_step(step5, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress < 6:
+            run_step(step6, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(time_break * 2)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        if step_progress < 7:
+            run_step(step7, driver, EMAIL, dop_mnemonic, mm_mnemonic, twitter_login, question)
+            time.sleep(timeout)
+            step_progress = update_step_progress(EMAIL)
+            print()
+
+        # log.debug("press enter to save data and continue...")
         save_progress(EMAIL, 7)
         step_progress = 7
-        input()
+        # input()
 
 
         if step_progress == 7:

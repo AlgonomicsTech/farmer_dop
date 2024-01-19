@@ -162,7 +162,7 @@ def auto_reg_and_step8(EMAIL, MNEMONIC, PROXY):
 
     time.sleep(time_break)
     proxy = PROXY.split("@")[1].split(":")[0]
-    ref = "FDtPJDz"  # select_referral_code('data/ref.txt')
+    ref =  select_referral_code('data/ref.txt')
     driver.get(url_main_dop + ref)
 
     driver.implicitly_wait(10)
