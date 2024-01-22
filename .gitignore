@@ -6,9 +6,9 @@ __pycache__/
 Thumbs.db
 .env
 data/accounts.txt
-data/twitter_data.txt
-data/proxy.txt
-data/ref.txt
-data/success_reg_accounts.txt
-data/passed_testnet.txt
+accounts.txt
+proxy.txt
+ref.txt
+twitter_data.txt
+wallets.txt
 logger.log
