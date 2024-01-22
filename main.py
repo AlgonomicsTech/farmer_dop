@@ -74,26 +74,20 @@ def main():
                 while use_proxy != 1:
                     for i in range(proxy_index, len(proxy_list)):
                         PROXY = proxy_list[i]
-                        ip = PROXY.split("@")[1].split(":")[0]
-                        if proxy_not_use(ip):
-                            try:
-                                auto_reg_and_step8(email, mnemonic, PROXY)
-                                time.sleep(2)
-                                log.info("go to the next account")
-                                time.sleep(timeout // 2)
-                                print()
-                                use_proxy = 1
-                                proxy_index = i + 1
-                                break
-                            except:
-                                time.sleep(timeout)
-                                continue
-                        else:
-                            log.info(f"{ip} already used in DOP ")
-                            log.info("go to the next ip")
+
+                        try:
+                            auto_reg_and_step8(email, mnemonic, PROXY)
+                            time.sleep(2)
+                            log.info("go to the next account")
+                            time.sleep(timeout // 2)
                             print()
-                            time.sleep(1)
+                            use_proxy = 1
+                            proxy_index = i + 1
+                            break
+                        except:
+                            time.sleep(timeout)
                             continue
+
             else:
                 log.info(f"{email} | already registered")
                 log.info("go to the next account...")
@@ -109,7 +103,7 @@ def main():
         for dot_accounts in success_reg_accounts:
             _, dop_mnemonic, _, email, mm_mnemonic, _, ip, step_progress = dot_accounts.split(":")
 
-            proxy = f"https://romakotenko17:INAt774aDH@{ip}:50100"
+            proxy = f"https://{login_proxy}:{password_proxy}@{ip}:{port_proxy}"
 
             if is_account_registered_2(email):
                 if is_account_passed_testnet(email):

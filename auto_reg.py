@@ -101,14 +101,6 @@ def update_referral_data(selected_referral, filename='data/ref.txt'):
     log.info(f'{selected_referral} | update | referral +1')
 
 
-def proxy_not_use(proxy):
-    with open('data/success_reg_accounts.txt', 'r') as file:
-        for line in file:
-            if proxy in line.split(':')[-2]:
-                return True
-    return False     ############################################
-
-
 def check_proxy(proxy):
     proxy_options = {
         "proxy": {
@@ -142,21 +134,21 @@ def auto_reg_and_step8(EMAIL, MNEMONIC, PROXY):
     dop_password = generate_password()
     mm_password = generate_password()
 
-    # if not check_proxy(proxy):
-    #     return None
+    if not check_proxy(PROXY):
+        return None
 
-    # time.sleep(time_break*2)
-    # proxy_options = {
-    #     "proxy": {
-    #         "https": proxy
-    #     }
-    # }
+    time.sleep(time_break*2)
+    proxy_options = {
+        "proxy": {
+            "https": PROXY
+        }
+    }
 
     chrome_options = Options()
     chrome_options.add_argument('--ignore-certificate-errors')
     chrome_options.add_argument(f'user-agent={random_user_agent}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
-    driver = webdriver.Chrome(options=chrome_options)  # seleniumwire_options=proxy_options
+    driver = webdriver.Chrome(options=chrome_options, seleniumwire_options=proxy_options)
 
     driver.maximize_window()
 

@@ -78,14 +78,6 @@ def save_data_passed_testnet(email_address, seed_phrase_dop, mnemonic_mm, twitte
     log.info(f"{email_address} | data save in {file_path}")
 
 
-def save_data_frozen_twitter(twitter_login):
-    file_path = 'data/frozen_twitter_accounts.txt'
-    data_line = f"{twitter_login}\n"
-
-    with open(file_path, 'a') as file:
-        file.write(data_line)
-    log.info(f"{twitter_login} | data save in {file_path}")
-
 
 def save_data_ref_code(email, ref_code, count_referrals=0):
 
@@ -666,9 +658,6 @@ def step7(driver, EMAIL):
 
 
 
-
-
-
 def refresh(driver):
     driver.switch_to.window(driver.window_handles[2])
     time.sleep(time_break)
@@ -726,23 +715,23 @@ def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_p
     step_progress = int(step_progress)
     question = False
 
-    # ua = UserAgent()
-    # random_user_agent = ua.random
-    #
-    # proxy_options = {
-    #     "proxy": {
-    #         "https": proxy
-    #     }
-    # }
+    ua = UserAgent()
+    random_user_agent = ua.random
+
+    proxy_options = {
+        "proxy": {
+            "https": proxy
+        }
+    }
 
     decoded_cookies = encrypto_cookies(cookies)
     cookies_dict = json.loads(decoded_cookies)
 
 
     chrome_options = Options()
-    #chrome_options.add_argument(f'user-agent={random_user_agent}')
+    chrome_options.add_argument(f'user-agent={random_user_agent}')
     chrome_options.add_extension('MetaMask_Chrome.crx')
-    driver = webdriver.Chrome(options=chrome_options) # seleniumwire_options=proxy_options
+    driver = webdriver.Chrome(options=chrome_options, seleniumwire_options=proxy_options)
     driver.maximize_window()
     driver.get("https://twitter.com")
 
@@ -808,11 +797,6 @@ def run_testnet(EMAIL, mm_mnemonic, dop_mnemonic, twitter_login, cookies, step_p
             time.sleep(timeout)
             step_progress = update_step_progress(EMAIL)
             print()
-
-        # log.debug("press enter to save data and continue...")
-        save_progress(EMAIL, 7)
-        step_progress = 7
-        # input()
 
 
         if step_progress == 7:
